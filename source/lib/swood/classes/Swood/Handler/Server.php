@@ -164,6 +164,7 @@ class Server {
 
     public function receive(\swoole_server $server, $fd, $from_id, $data) {
         D::du("received[$server->worker_pid]");
+//        D::du($data);
 
         // 连接信息
         $connection_info = $this->getConnectionInfo($fd);

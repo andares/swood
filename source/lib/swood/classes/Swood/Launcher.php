@@ -83,10 +83,17 @@ class Launcher {
         return $client;
     }
 
+    /**
+     * 执行指令
+     * @return type
+     */
     public function run() {
         return $this->{$this->cmd}();
     }
 
+    /**
+     * 启动swood
+     */
     public function start() {
         // 创建服务
         $server = $this->createServer();
@@ -104,22 +111,39 @@ class Launcher {
         $server->start();
     }
 
+    /**
+     * 停止swood实例
+     */
     public function stop() {
         $this->callLauncherApp(['stop']);
     }
 
+    /**
+     * 平滑重启（刷新文件）
+     */
     public function reload() {
         $this->callLauncherApp(['reload']);
     }
 
+    /**
+     * 查看状态
+     */
     public function status() {
         $this->callLauncherApp(['status']);
     }
 
+    /**
+     * 进入维护模式
+     */
     public function hold() {
         $this->callLauncherApp(['hold']);
     }
 
+    /**
+     *
+     * @param string $action
+     * @return boolean
+     */
     private function callLauncherApp($action) {
         $listen = \Swood\Dock::select('instance')['conf']
             ->get('swood', 'swood')['launcher']['listen'];
@@ -142,8 +166,14 @@ class Launcher {
         } else {
             D::ec(">> response is not valid!");
         }
+        return true;
     }
 
+    /**
+     *
+     * @throws \DomainException
+     * @throws \RuntimeException
+     */
     public function call() {
         // 创建app
         $app_name   = $this->params->app;
@@ -184,30 +214,41 @@ class Launcher {
         $result = $client->call("$request", $listen['host'], $listen['port']);
         if ($result) {
             $response = $app->buildResponse($result);
-            $error    = $response->hasError();
-            if ($error) {
-                D::ec(">> fail: " . json_encode($error));
-            } else {
-                $header = $response->getHeader();
-                D::ec(">> response header: " . json_encode($header->toArray()));
-                D::ec(">> response result:");
-                D::ec(json_encode($response->getAllResult()));
-                D::ec(">> response channel:");
-                foreach ($response->getChannelList() as $channel_name) {
-                    $data = $response->getChannel($channel_name);
-                    D::ec("--- $channel_name");
-                    D::ec("    " . json_encode($data));
-                }
-            }
+            $this->echoResponse($response);
         } else {
             D::ec(">> fail");
         }
     }
 
+    private function echoResponse(Protocol\Response $response) {
+        $error    = $response->hasError();
+        if ($error) {
+            D::ec(">> fail: " . json_encode($error));
+        } else {
+            $header = $response->getHeader();
+            D::ec(">> response header: " . json_encode($header->toArray()));
+            D::ec(">> response result:");
+            D::ec(json_encode($response->getAllResult()));
+            D::ec(">> response channel:");
+            foreach ($response->getChannelList() as $channel_name) {
+                $data = $response->getChannel($channel_name);
+                D::ec("--- $channel_name");
+                D::ec("    " . json_encode($data));
+            }
+        }
+
+    }
+
+    /**
+     * 执行单个action
+     */
     public function exec() {
 
     }
 
+    /**
+     * 显示帮助
+     */
     public function help() {
         $dict = \Swood\Dock::select('swood')['dict']->get('swood', 'message');
 
@@ -226,9 +267,4 @@ class Launcher {
         }
     }
 
-    /**
-     * 临时使用的测试方法
-     */
-    public function play() {
-    }
 }
