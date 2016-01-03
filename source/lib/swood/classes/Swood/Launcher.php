@@ -220,6 +220,10 @@ class Launcher {
         }
     }
 
+    /**
+     *
+     * @param \Swood\Protocol\Response $response
+     */
     private function echoResponse(Protocol\Response $response) {
         $error    = $response->hasError();
         if ($error) {
