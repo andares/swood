@@ -176,16 +176,31 @@ class Server {
                 }
 
                 $data = $this->server->unpackData($data);
+                if (!$data) {
+                    // TODO 是否做处理待考
+                    continue;
+                }
 
                 $request    = $app->buildRequest($data);
                 $response   = $app->buildResponse();
+            } catch (\Exception $exc) {
+                D::logError($exc);
+                continue;
+            }
+
+            // 执行
+            try {
                 $app->worker->call($request, $response);
                 D::level() && D::du("call: <$app_name> " . json_encode($request->toArray()) .
                     " => " . json_encode($response->toArray()));
 
             } catch (\Exception $exc) {
                 $header = $response->getHeader();
-                $header['error'] = $exc->getMessage();
+                $header['error'] = ($exc instanceof \Swood\App\Exception && D::level()) ?
+                    $exc->getUserMessage() : $exc->getMessage();
+
+                // 日志
+                D::logError($exc);
 
                 // 出错后清除所有之前返回的结果
                 $response->clearResult();

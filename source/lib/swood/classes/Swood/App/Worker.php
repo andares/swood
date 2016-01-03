@@ -70,7 +70,11 @@ abstract class Worker extends WorkerBase {
             }
         } catch (\Exception $exc) {
             $header = $response->getHeader();
-            $header['error'] = $exc->getMessage();
+            $header['error'] = ($exc instanceof \Swood\App\Exception && D::level()) ?
+                $exc->getUserMessage() : $exc->getMessage();
+
+            // 日志
+            D::logError($exc);
 
             // 出错后清除所有之前返回的结果
             $response->clearResult();

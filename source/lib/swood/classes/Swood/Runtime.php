@@ -44,19 +44,4 @@ trait Runtime {
         }
         return $data;
     }
-
-    public static function raiseError($errno, $errstr, $errfile, $errline, $errcontext = []) {
-        if (intval(ini_get('log_errors'))) {
-            error_log("PHP Error[$errno]: $errstr in $errfile on line $errline", 0);
-        }
-        throw new \PhpError($errstr, 0, $errno, $errfile, $errline, null);
-    }
-
-    public static function raiseException(\Exception $exception) {
-        D::ec("Uncaught exception: " . $exception->getMessage());
-        if (\Dev\Debug::getMode()) {
-            D::ec($exception->getTraceAsString());
-        }
-    }
-
 }

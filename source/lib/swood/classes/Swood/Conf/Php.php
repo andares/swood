@@ -7,13 +7,14 @@ namespace Swood\Conf;
  * @author andares
  */
 class Php extends Yml {
+    protected static $suffix = 'php';
 
     protected function loadContent($file) {
-        return require "$file.php";
+        return require "$file." . static::$suffix;
     }
 
     protected function loadSchema($file) {
-        $file .= ".sch.php";
+        $file .= ".sch." . static::$suffix;
         if (!file_exists($file)) {
             return false;
         }

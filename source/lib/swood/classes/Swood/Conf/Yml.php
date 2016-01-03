@@ -7,12 +7,25 @@ namespace Swood\Conf;
  * @author andares
  */
 class Yml implements \ArrayAccess, \IteratorAggregate {
+    protected static $suffix = 'yml';
+
     protected $data;
     protected $index    = [];
 
     private $schema = [];
 
-    public function __construct($file) {
+    public function __construct($base_dir, $scene, $path, $default_scene) {
+        // scene重载
+        $file   = $base_dir . DIRECTORY_SEPARATOR . $scene .
+            DIRECTORY_SEPARATOR . $path;
+        if (!file_exists("$file." . static::$suffix)) {
+            $file   = $base_dir . DIRECTORY_SEPARATOR . $default_scene .
+                DIRECTORY_SEPARATOR . $path;
+            if (!file_exists("$file." . static::$suffix)) {
+                throw new \InvalidArgumentException("conf [$path] is not exists");
+            }
+        }
+
         $this->load($file);
     }
 
@@ -39,11 +52,11 @@ class Yml implements \ArrayAccess, \IteratorAggregate {
     }
 
     protected function loadContent($file) {
-        return \yaml_parse_file("$file.yml");
+        return \yaml_parse_file("$file." . static::$suffix);
     }
 
     protected function loadSchema($file) {
-        $file .= ".sch.yml";
+        $file .= ".sch." . static::$suffix;
         if (!file_exists($file)) {
             return false;
         }

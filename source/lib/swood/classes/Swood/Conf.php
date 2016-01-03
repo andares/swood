@@ -9,12 +9,16 @@ namespace Swood;
  * @author andares
  */
 class Conf {
+    public $default_scene = 'default';
+
     protected $data      = [];
     private $base_dir;
     private $class;
+    private $scene;
 
-    public function __construct($base_dir, $class = '\Swood\Conf\Yml') {
+    public function __construct($base_dir, $scene, $class = '\Swood\Conf\Yml') {
         $this->base_dir = $base_dir;
+        $this->scene    = $scene;
         $this->class    = $class;
     }
 
@@ -26,9 +30,9 @@ class Conf {
      */
     public function get($space, $path) {
         if (!isset($this->data[$space][$path])) {
-            $file   = $this->base_dir . DIRECTORY_SEPARATOR . $space . DIRECTORY_SEPARATOR . "$path";
             $class  = $this->class;
-            $conf   = new $class($file);
+            $conf   = new $class($this->base_dir, $this->scene,
+                $space . DIRECTORY_SEPARATOR . $path, $this->default_scene);
             $this->data[$space][$path] = $conf;
         }
 

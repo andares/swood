@@ -15,6 +15,6 @@ require "/home/worker/local/lib/swood/classes/Swood/Autoload.php";
 $autoload = new \Swood\Autoload();
 $autoload->import("/home/worker/local/lib/swood/classes/");
 $autoload->register();
-\Swood\Dock::select('app')['autoload'] = $autoload;
+\Swood\Dock::select('instance')['autoload'] = $autoload;
 
 \Swood\Debug::setLevel(2);

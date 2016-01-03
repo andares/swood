@@ -5,7 +5,7 @@ use Swood\Debug as D;
 /**
  * 启动器
  *
- * @note test: swtry --debug call Poi/GetById 'bbb[]=22&id=111' -H 'token=wwwwww'
+ * @note test: swtry call Poi/GetById 'bbb[]=22&id=111' -H 'token=wwwwww'
  * @note test: swood call aaa 'bbb[]=22' -H 'token=wwwwww' -C ~/repos/117go/gis2
  * @note test: swtry call aaa 'bbb[]=22' ccc '{"ddd":100}' -H 'token=wwwwww'
  *
@@ -17,12 +17,6 @@ class Launcher {
      * @var Launcher\Params
      */
     private $params;
-
-    /**
-     *
-     * @var string
-     */
-    private $work_dir;
 
     /**
      *
@@ -49,9 +43,6 @@ class Launcher {
             return true;
         }
 
-        // 设置debug level
-        Debug::setLevel($this->params->debug);
-
         // 取cmd
         $this->cmd = $this->params->getCmd();
 
@@ -61,71 +52,12 @@ class Launcher {
         }
 
         // 取工作目录
-        $this->work_dir = $this->params->getWorkDir();
-        $autoload_path  = $this->work_dir . DIRECTORY_SEPARATOR . "classes";
-        $conf_path      = $this->work_dir . DIRECTORY_SEPARATOR . "conf" .
-            DIRECTORY_SEPARATOR. $this->params->conf;
+        $workdir = new WorkDir($this->params->work_dir);
+        $workdir->init($this->params->conf, $this->params->getDebugLevel());
+        \Swood\Dock::select('swood')['workdir'] = $workdir;
 
-        // init.php
-        require "$this->work_dir/init.php";
-
-        $result = $this->checkEnv([
-            $autoload_path,
-            $conf_path,
-        ]);
-        if (!$result) {
-            throw new \RuntimeException('env check fail');
-        }
-
-        // autoload
-        $autoload = \Swood\Dock::select('swood')['autoload'];
-        $autoload->import($autoload_path);
-        \Swood\Dock::select('app')['autoload'] = $autoload;
-
-        // 载入配置
-        $conf = new Conf($conf_path);
-        \Swood\Dock::select('app')['conf'] = $conf;
-        $this->conf = $conf->get('swood', 'swood');
-    }
-
-    /**
-     * 基础环境检测
-     *
-     * @todo checkEnv完善
-     */
-    private function checkEnv($check_path) {
-        if (!function_exists('\swoole_version')) {
-            throw new \RuntimeException("Swood is depend swoole module");
-        }
-
-        if (PHP_VERSION_ID < 50600) {
-            D::ec(" * Check PHP version ......... " . phpversion() . " >> Fail! (require 5.6)");
-            return false;
-        } else {
-            D::ec(" * Check PHP version ......... " . phpversion() . " - OK.");
-        }
-
-        $version = explode('.', \swoole_version());
-        $require = [
-            1, 7, 21,
-        ];
-        foreach ($require as $key => $value) {
-            if ($value[$key] > $version[$key]) {
-                D::ec(" * Check Swoole version ...... " . \swoole_version() . " >> Fail! (require 1.7.6)");
-                return false;
-            }
-        }
-        D::ec(" * Check Swoole version ...... " . \swoole_version() . " - OK.");
-
-        // 检查目录
-        foreach ($check_path as $path) {
-            if (!file_exists($path)) {
-                throw new \RuntimeException("work dir [$this->work_dir] is incomplete");
-            }
-        }
-
-        D::ec('');
-        return true;
+        // 载入swood配置
+        $this->conf = \Swood\Dock::select('instance')['conf']->get('swood', 'swood');
     }
 
     /**
@@ -133,10 +65,10 @@ class Launcher {
      * @return Server
      */
     private function createServer() {
-        $swoole_conf = \Swood\Dock::select('app')['conf']->get('swood', 'swoole_conf');
+        $swoole_conf = \Swood\Dock::select('instance')['conf']->get('swood', 'swoole_conf');
         $server      = new Server($this->conf['launcher']['listen'],
             $this->conf['server'], $swoole_conf->toArray());
-        \Swood\Dock::select('app')['server'] = $server;
+        \Swood\Dock::select('instance')['server'] = $server;
         return $server;
     }
 
@@ -145,9 +77,9 @@ class Launcher {
      * @return Client
      */
     private function createClient() {
-        $swoole_conf = \Swood\Dock::select('app')['conf']->get('swood', 'swoole_client');
+        $swoole_conf = \Swood\Dock::select('instance')['conf']->get('swood', 'swoole_client');
         $client      = new Client($this->conf['client'], $swoole_conf->toArray());
-        \Swood\Dock::select('app')['client'] = $client;
+        \Swood\Dock::select('instance')['client'] = $client;
         return $client;
     }
 
@@ -160,22 +92,15 @@ class Launcher {
         $server = $this->createServer();
 
         // 添加app
-        $apps_conf    = \Swood\Dock::select('app')['conf']->get('swood', 'apps');
+        $apps_conf    = \Swood\Dock::select('instance')['conf']->get('swood', 'apps');
         foreach ($apps_conf as $app_name => $app_conf) {
             $server->setApp($app_name, $app_conf);
         }
 
 
         $server->bindCallback();
-
-//        $app = new \Gis2\App([]);
-//        D::du($app);
-//        D::du($app->createWorker());
-//        D::du($app->createTaskWorker());
-
-        // TODO 暂时server start时没有回调，只能先在start前输出一下
+        // TODO server start时没有回调，只能先在start前输出一下
         D::ec('server start..');
-
         $server->start();
     }
 
@@ -196,7 +121,7 @@ class Launcher {
     }
 
     private function callLauncherApp($action) {
-        $listen = \Swood\Dock::select('app')['conf']
+        $listen = \Swood\Dock::select('instance')['conf']
             ->get('swood', 'swood')['launcher']['listen'];
         $app = new Launcher\App\App([]);
 
@@ -222,7 +147,7 @@ class Launcher {
     public function call() {
         // 创建app
         $app_name   = $this->params->app;
-        $apps_conf  = \Swood\Dock::select('app')['conf']->get('swood', 'apps');
+        $apps_conf  = \Swood\Dock::select('instance')['conf']->get('swood', 'apps');
         if ($app_name) {
             // 确认有没有
             if (!isset($apps_conf[$app_name])) {
@@ -267,6 +192,12 @@ class Launcher {
                 D::ec(">> response header: " . json_encode($header->toArray()));
                 D::ec(">> response result:");
                 D::ec(json_encode($response->getAllResult()));
+                D::ec(">> response channel:");
+                foreach ($response->getChannelList() as $channel_name) {
+                    $data = $response->getChannel($channel_name);
+                    D::ec("--- $channel_name");
+                    D::ec("    " . json_encode($data));
+                }
             }
         } else {
             D::ec(">> fail");

@@ -25,7 +25,7 @@ class Debug {
      * @param int $level
      */
     public static function setLevel($level) {
-        self::$level = $level;
+        self::$level = intval($level);
     }
 
     /**
@@ -65,6 +65,23 @@ class Debug {
     public static function dl(...$argv) {
         $output = self::d(...$argv);
         self::logger('debug', $output);
+    }
+
+    /**
+     *
+     * @param string|\Exception $msg
+     */
+    public static function logError($msg) {
+        if (!intval(\ini_get('log_errors'))) {
+            return false;
+        }
+
+        if (is_object($msg) && $msg instanceof \Exception) {
+            \error_log($msg->getMessage());
+            \error_log($msg->getTraceAsString());
+        } else {
+            \error_log($msg);
+        }
     }
 
     /**

@@ -25,7 +25,7 @@ class Worker extends \Swood\App\Worker {
                     $result->msg = "swood server will shutdown..";
 
                     $swoole = $this->app->server->swoole;
-                    $swoole->after(3000, function() use ($swoole) {
+                    $swoole->after(1500, function() use ($swoole) {
                         $swoole->shutdown();
                     });
                     break;
@@ -33,7 +33,7 @@ class Worker extends \Swood\App\Worker {
                     $result->msg = "swood server will reload..";
 
                     $swoole = $this->app->server->swoole;
-                    $swoole->after(3000, function() use ($swoole) {
+                    $swoole->after(1500, function() use ($swoole) {
                         $swoole->reload();
                     });
                     break;

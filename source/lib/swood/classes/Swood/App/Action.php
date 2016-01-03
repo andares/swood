@@ -57,12 +57,12 @@ abstract class Action {
         if ($action_conf['last_version']) {
             if ($version) {
                 if ($version > $action_conf['last_version']) {
-                    $class .= "V{$action_conf['last_version']}";
+                    $class .= "\\V{$action_conf['last_version']}";
                 } else {
-                    $class .= "V$version";
+                    $class .= "\\V$version";
                 }
             } else {
-                $class .= "V{$action_conf['last_version']}";
+                $class .= "\\V{$action_conf['last_version']}";
             }
         }
 

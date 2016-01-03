@@ -77,21 +77,21 @@ abstract class Meta implements \ArrayAccess, \IteratorAggregate {
      * 重载
      */
     public function __get($name) {
-        if (!isset(static::$_struct[$name])) {
+        if (!array_key_exists($name, static::$_struct)) {
             throw new \DomainException("field not exists: $name");
         }
         return isset($this->_data[$name]) ? $this->_data[$name] : static::$_struct[$name];
     }
 
     public function __set($name, $value) {
-        if (!isset(static::$_struct[$name])) {
+        if (!array_key_exists($name, static::$_struct)) {
             throw new \DomainException("field not exists: $name");
         }
         $this->_data[$name] = $value;
     }
 
     public function __isset($name) {
-        return isset(static::$_struct[$name]);
+        return array_key_exists($name, static::$_struct);
     }
 
     public function __unset($name) {

@@ -80,7 +80,7 @@ abstract class App {
      * @return \Swood\Conf
      */
     public function getConf() {
-        return \Swood\Dock::select('app')['conf'];
+        return \Swood\Dock::select('instance')['conf'];
     }
 
     public function getListenConf($port_id = null) {

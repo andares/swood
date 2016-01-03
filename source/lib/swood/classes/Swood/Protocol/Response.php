@@ -120,6 +120,10 @@ abstract class Response {
         $this->result = [];
     }
 
+    public function getChannelList() {
+        return array_keys($this->channel);
+    }
+
     /**
      *
      * @param string $channel_name

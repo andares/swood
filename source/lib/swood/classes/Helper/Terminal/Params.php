@@ -1,5 +1,6 @@
 <?php
 namespace Helper\Terminal;
+use Swood\Debug as D;
 
 /**
  * 命令行参数解析器
@@ -94,7 +95,7 @@ class Params extends \Helper\Meta {
 
             $this->$name = $value;
         } catch (\DomainException $exc) {
-            // TODO log exception
+            D::logError($exc);
             return false;
         }
 

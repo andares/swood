@@ -22,10 +22,41 @@
 namespace Swood\App;
 
 /**
- * Description of AppTest
+ * AppTest用于在单元测试中构建一个低耦合性的App对象，
+ * 供Action等对象的构造器使用。
  *
  * @author andares
  */
 abstract class AppTest extends App {
-    //put your code here
+    public function __construct($conf = []) {
+        parent::__construct($conf);
+    }
+
+    public function buildRequest($data = []) {
+        return new \stdClass();
+    }
+
+    public function buildResponse($data = []) {
+        return new \stdClass();
+    }
+
+    /**
+     *
+     * @return Worker
+     */
+    public function createWorker() {
+        return new \stdClass();
+    }
+
+    public function createTaskWorker() {
+        return new \stdClass();
+    }
+
+    public function start() {
+        D::ec(">> server start");
+    }
+
+    public function shutdown() {
+        D::ec(">> server stop");
+    }
 }

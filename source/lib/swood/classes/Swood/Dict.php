@@ -32,9 +32,8 @@ class Dict extends Conf {
 
     public function __construct($lang, $base_dir, $class = '\Swood\Conf\Yml') {
         $this->lang = $lang;
-        $base_dir .= DIRECTORY_SEPARATOR . $lang;
 
-        parent::__construct($base_dir, $class);
+        parent::__construct($base_dir, $lang, $class);
     }
 
     public function __invoke($key, array $values = []) {

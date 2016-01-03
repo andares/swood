@@ -42,7 +42,7 @@ class Params extends \Helper\Terminal\Params {
 
     public $conf    = 'default';
 
-    public $debug   = 0;
+    public $debug   = null;
 
     public $help    = 0;
 
@@ -68,8 +68,12 @@ class Params extends \Helper\Terminal\Params {
         return $this->_main[1];
     }
 
-    public function getWorkDir() {
-        return $this->work_dir;
+    public function getDebugLevel() {
+        if ($this->debug === null) {
+            return null;
+        } else {
+            return intval($this->debug);
+        }
     }
 
     public function getHeader() {

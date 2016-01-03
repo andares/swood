@@ -50,7 +50,7 @@ trait Loader {
      * @return \Swood\Conf
      */
     protected function getSchemaConf() {
-        return \Swood\Dock::select('app')['conf'];
+        return \Swood\Dock::select('instance')['conf'];
     }
 
 }

@@ -20,6 +20,7 @@
  */
 
 namespace Swood\App;
+use Swood\Debug as D;
 
 /**
  * Description of Exception
@@ -27,5 +28,15 @@ namespace Swood\App;
  * @author andares
  */
 class Exception extends \Exception {
-    //put your code here
+    protected static $code_prefix = 0;
+
+    public function __construct($message = "", $code = 0, \Exception $previous = null) {
+        static::$code_prefix && $code += static::$code_prefix;
+
+        parent::__construct($message, $code, $previous);
+    }
+
+    public function getUserMessage() {
+        return 'system is busy';
+    }
 }
