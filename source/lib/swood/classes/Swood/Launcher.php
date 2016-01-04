@@ -271,4 +271,7 @@ class Launcher {
         }
     }
 
+    public function play() {
+    }
+
 }
