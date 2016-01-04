@@ -91,6 +91,10 @@ abstract class App {
         }
     }
 
+    public function hookAfterReceive() {
+        // do something..
+    }
+
     /**
      *
      * @param type $data

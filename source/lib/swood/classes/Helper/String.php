@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (C) 2015 andares.
+ * Copyright (C) 2016 andares.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,29 +19,22 @@
  * MA 02110-1301  USA
  */
 
-namespace Swood\App;
-use Swood\Debug as D;
+namespace Helper;
 
 /**
- * Description of Worker
- *
- * @todo 需要抽象出来fd的全局共享存储方案提供给使用者
+ * Description of String
  *
  * @author andares
  */
-abstract class WorkerBase {
-    /**
-     *
-     * @var App
-     */
-    public $app;
-
-    public function __construct(App $app) {
-        $this->app = $app;
+class String {
+    public static function decodeJson($str) {
+        $result = \json_decode($str, true);
+        if (!$result) {
+            \parse_str($str, $result);
+            if (!$result) {
+                return false;
+            }
+        }
+        return $result;
     }
-
-    abstract public function start();
-    abstract public function stop();
-    abstract public function error();
-
 }

@@ -41,7 +41,11 @@ trait Mapping {
      * @return int
      */
     protected function _transKey($offset) {
-        return $this->_getSchema()[$offset];
+        return static::getSchema()[$offset]['key'];
+    }
+
+    protected function _getDefault($offset) {
+        return static::getSchema()[$offset]['default'];
     }
 
     /**
@@ -62,7 +66,8 @@ trait Mapping {
     }
 
     public function offsetGet($offset) {
-        return $this->_data[$this->_transKey($offset)];
+        $key = $this->_transKey($offset);
+        return isset($this->_data[$key]) ? $this->_data[$key] : $this->_getDefault($offset);
     }
 
     public function offsetSet($offset, $value) {

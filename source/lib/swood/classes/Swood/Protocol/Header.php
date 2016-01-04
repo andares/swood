@@ -20,6 +20,7 @@
  */
 
 namespace Swood\Protocol;
+use Swood\Debug as D;
 
 /**
  * Description of Header
@@ -41,5 +42,18 @@ class Header implements \ArrayAccess {
 
     public function __construct($data = []) {
         $data && $this->_data = $data;
+    }
+
+    public function hasError() {
+        if (isset($this['error']) && $this['error']) {
+            return $this['error'];
+        }
+        return false;
+    }
+
+    public function raiseError(\Exception $error) {
+        $message = ($error instanceof \Swood\App\Exception && !D::level()) ?
+            $error->getUserMessage() : $error->getMessage();
+        $this['error'] = [$message, $error->getCode()];
     }
 }

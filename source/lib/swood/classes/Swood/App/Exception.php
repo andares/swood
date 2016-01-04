@@ -29,11 +29,20 @@ use Swood\Debug as D;
  */
 class Exception extends \Exception {
     protected static $code_prefix = 0;
+    protected $extra_info = [];
 
     public function __construct($message = "", $code = 0, \Exception $previous = null) {
         static::$code_prefix && $code += static::$code_prefix;
 
         parent::__construct($message, $code, $previous);
+    }
+
+    public function setExtraInfo($extra_info) {
+        $this->extra_info;
+    }
+
+    public function getExtraInfo() {
+        return $this->extra_info;
     }
 
     public function getUserMessage() {

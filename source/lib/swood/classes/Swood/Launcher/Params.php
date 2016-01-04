@@ -127,14 +127,7 @@ class Params extends \Helper\Terminal\Params {
     }
 
     private function parseCode($str) {
-        $code = json_decode($str, true);
-        if (!$code) {
-            parse_str($str, $code);
-            if (!$code) {
-                return null;
-            }
-        }
-        return $code;
+        return \Helper\String::decodeJson($str);
     }
 
 }

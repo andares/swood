@@ -227,17 +227,19 @@ class Launcher {
     private function echoResponse(Protocol\Response $response) {
         $error    = $response->hasError();
         if ($error) {
-            D::ec(">> fail: " . json_encode($error));
+            D::ec(">> fail: " . \json_encode($error));
         } else {
             $header = $response->getHeader();
-            D::ec(">> response header: " . json_encode($header->toArray()));
+            D::ec(">> response header: " . \json_encode($header->toArray()));
             D::ec(">> response result:");
-            D::ec(json_encode($response->getAllResult()));
+            D::ec(\json_encode($response->getAllResult()));
+            D::ec(">> response errors:");
+            D::ec(\json_encode($response->getAllErrors()));
             D::ec(">> response channel:");
             foreach ($response->getChannelList() as $channel_name) {
                 $data = $response->getChannel($channel_name);
                 D::ec("--- $channel_name");
-                D::ec("    " . json_encode($data));
+                D::ec("    " . \json_encode($data));
             }
         }
 

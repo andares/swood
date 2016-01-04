@@ -63,15 +63,18 @@ abstract class Worker extends WorkerBase {
             foreach ($request->getActions() as $action_id => $action_call) {
                 $result = $this->dispatch($action_call);
                 if ($result) { // 如果某个action返回null或无返回则response.result中会跳过此action id
-                    $response->setResult($action_id, $result);
+                    if ($result instanceof Action\Error) {
+                        $response->setError($action_id, $result);
+                    } else {
+                        $response->setResult($action_id, $result);
+                    }
                 }
 
                 // TODO 触发action done hook
             }
         } catch (\Exception $exc) {
             $header = $response->getHeader();
-            $header['error'] = ($exc instanceof \Swood\App\Exception && D::level()) ?
-                $exc->getUserMessage() : $exc->getMessage();
+            $header->raiseError($exc);
 
             // 日志
             D::logError($exc);

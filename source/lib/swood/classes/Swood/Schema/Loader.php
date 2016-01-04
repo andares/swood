@@ -37,9 +37,9 @@ trait Loader {
      *
      * @return array
      */
-    protected function _getSchema() {
+    public static function getSchema() {
         if (is_string(static::$_schema)) {
-            static::$_schema = $this->getSchemaConf()->get('schema', static::$_schema);
+            static::$_schema = static::getSchemaConf()->get('schema', static::$_schema);
         }
 
         return static::$_schema;
@@ -49,7 +49,7 @@ trait Loader {
      *
      * @return \Swood\Conf
      */
-    protected function getSchemaConf() {
+    protected static function getSchemaConf() {
         return \Swood\Dock::select('instance')['conf'];
     }
 

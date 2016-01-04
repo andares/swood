@@ -34,10 +34,11 @@ class WorkerTest extends \PHPUnit_Framework_TestCase {
      * @todo   Implement testCall().
      */
     public function testCall() {
+        $this->assertEquals(1, 1);
         // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+//        $this->markTestIncomplete(
+//            'This test has not been implemented yet.'
+//        );
     }
 
     /**

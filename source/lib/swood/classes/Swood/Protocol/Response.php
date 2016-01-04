@@ -42,6 +42,12 @@ abstract class Response {
 
     /**
      *
+     * @var type
+     */
+    protected $errors = [];
+
+    /**
+     *
      * @var Channel[]
      */
     protected $channel = [];
@@ -65,9 +71,10 @@ abstract class Response {
             $this->header   = $this->createHeader();
         }
         isset($data[1]) && $this->result   = $data[1];
+        isset($data[2]) && $this->errors   = $data[2];
 
-        if (isset($data[2])) {
-            foreach ($data[2] as $channel_name => $channel_data) {
+        if (isset($data[3])) {
+            foreach ($data[3] as $channel_name => $channel_data) {
                 $this->channel[$channel_name] = new Channel($channel_name, $channel_data);
             }
         }
@@ -120,6 +127,14 @@ abstract class Response {
         $this->result = [];
     }
 
+    public function getAllErrors() {
+        return $this->errors;
+    }
+
+    public function setError($action_id, \Swood\App\Action\Error $error) {
+        $this->error[$action_id] = $error->toArray();
+    }
+
     public function getChannelList() {
         return array_keys($this->channel);
     }
@@ -146,7 +161,7 @@ abstract class Response {
         foreach ($this->channel as $name => $channel) {
             $channel[$name] = $channel->toArray();
         }
-        return [$this->header->toArray(), $this->result, $channel];
+        return [$this->header->toArray(), $this->result, $this->errors, $channel];
     }
 
     /**
@@ -156,11 +171,7 @@ abstract class Response {
      * @return boolean
      */
     public function hasError() {
-        $header = $this->getHeader();
-        if (isset($header['error']) && $header['error']) {
-            return $header['error'];
-        }
-        return false;
+        return $this->getHeader()->hasError();
     }
 
     abstract public function encode($data);

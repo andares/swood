@@ -94,16 +94,6 @@ class Server {
     }
 
     /**
-     * 取连接信息
-     * @param type $fd
-     * @return type
-     */
-    private function getConnectionInfo($fd) {
-        $info = $this->server->swoole->connection_info($fd);
-        return $info;
-    }
-
-    /**
      *
      * @param \swoole_server $server
      */
@@ -164,10 +154,10 @@ class Server {
 
     public function receive(\swoole_server $server, $fd, $from_id, $data) {
         D::du("received[$server->worker_pid]");
-//        D::du($data);
 
         // 连接信息
-        $connection_info = $this->getConnectionInfo($fd);
+        $this->server->current_fd = $fd;
+        $connection_info = $this->server->getConnectionInfo();
         foreach ($this->mappingPort($connection_info['server_port']) as $app_name) {
             try {
                 $app = $this->server->getApp($app_name);
@@ -190,25 +180,24 @@ class Server {
             }
 
             // 执行
+            $app->worker->call($request, $response);
+            D::level() && D::du("call: <$app_name> " . \json_encode($request->toArray()) .
+                " => " . \json_encode($response->toArray()));
+
+            // 发回
+            $result   = $this->server->packData("$response");
+            $server->send($fd, $result);
+        }
+
+        // hook
+        // TODO hook调用有待优化
+        foreach ($this->mappingPort($connection_info['server_port']) as $app_name) {
             try {
-                $app->worker->call($request, $response);
-                D::level() && D::du("call: <$app_name> " . json_encode($request->toArray()) .
-                    " => " . json_encode($response->toArray()));
-
+                $app = $this->server->getApp($app_name);
+                $app->hookAfterReceive();
             } catch (\Exception $exc) {
-                $header = $response->getHeader();
-                $header['error'] = ($exc instanceof \Swood\App\Exception && D::level()) ?
-                    $exc->getUserMessage() : $exc->getMessage();
-
-                // 日志
                 D::logError($exc);
-
-                // 出错后清除所有之前返回的结果
-                $response->clearResult();
-            } finally {
-                // 发回
-                $result   = $this->server->packData("$response");
-                $server->send($fd, $result);
+                continue;
             }
         }
     }

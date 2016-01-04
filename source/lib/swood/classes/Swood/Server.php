@@ -18,6 +18,8 @@ class Server {
     const PROCESSTYPE_WORKER        = 3;
     const PROCESSTYPE_TASKWORKER    = 4;
 
+    public $current_fd;
+
     /**
      *
      * 当前该进程类型
@@ -63,8 +65,16 @@ class Server {
     }
 
     public function __call($method, $args = []) {
-        D::level() && D::du("call \\swoole_server::$method() => " . json_encode($args));
         $this->swoole->$method(...$args);
+    }
+
+    /**
+     * 取连接信息
+     * @return type
+     */
+    public function getConnectionInfo() {
+        $info = $this->swoole->connection_info($this->current_fd);
+        return $info;
     }
 
     public function setProcessType($process_type) {

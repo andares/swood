@@ -39,7 +39,14 @@ class Autoload {
 
     public function called($classname) {
         $classname  = \str_replace("\\", DIRECTORY_SEPARATOR, $classname);
-        include "$classname.php";
+
+        // TODO 这里加入try，只为处理phpunit中愚蠢的、莫名奇妙地对composer autload类的载入
+        try {
+            include "$classname.php";
+        } catch (\Exception $exc) {
+            return false;
+        }
+
         $this->loaded_classes[] = $classname;
         if (class_exists($classname) || interface_exists($classname) ||
             trait_exists($classname)) {
