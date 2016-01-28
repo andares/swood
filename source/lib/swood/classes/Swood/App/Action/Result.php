@@ -26,6 +26,6 @@ namespace Swood\App\Action;
  *
  * @author andares
  */
-abstract class Result extends \Helper\Meta {
+abstract class Result extends \Swood\Schema\Meta {
     //put your code here
 }

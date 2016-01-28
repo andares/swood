@@ -1,5 +1,6 @@
 <?php
 namespace Swood\Conf;
+use Swood\Debug as D;
 
 /**
  * Description of Yml
@@ -48,7 +49,7 @@ class Yml implements \ArrayAccess, \IteratorAggregate {
         $this->loadSchema($file);
 
         // 生成索引
-        isset($this->schema['index']) && $this->buildIndex($this->schema['index']);
+        $this->schema && $this->buildIndex();
     }
 
     protected function loadContent($file) {
@@ -78,7 +79,13 @@ class Yml implements \ArrayAccess, \IteratorAggregate {
         if (isset($this->schema['mindex'])) {
             foreach ($this->data as $key => $row) {
                 foreach ($this->schema['mindex'] as $field) {
-                    $this->index[$field][$row[$field]][] = $key;
+                    if (is_array($row[$field])) {
+                        foreach ($row[$field] as $value) {
+                            $this->index[$field][$value][] = $key;
+                        }
+                    } else {
+                        $this->index[$field][$row[$field]][] = $key;
+                    }
                 }
             }
         }

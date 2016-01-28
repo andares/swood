@@ -22,11 +22,14 @@
 namespace Swood\Schema;
 
 /**
- * Description of Mapping
+ * 实现以数组形式存放kv数据，并将对象模拟成一个数组使用定义好的key名访问指定的数据。
+ * 支持数字下标至键值转换（仅访问），通过ArrayAccess；
+ * 支持toArray()返回原生数组；
+ * 内/外部结构定义，支持默认值。
  *
  * @author andares
  */
-trait Mapping {
+class Mapping implements \ArrayAccess {
     use Loader;
 
     /**

@@ -104,7 +104,6 @@ class Launcher {
             $server->setApp($app_name, $app_conf);
         }
 
-
         $server->bindCallback();
         // TODO server start时没有回调，只能先在start前输出一下
         D::ec('server start..');
@@ -147,7 +146,7 @@ class Launcher {
     private function callLauncherApp($action) {
         $listen = \Swood\Dock::select('instance')['conf']
             ->get('swood', 'swood')['launcher']['listen'];
-        $app = new Launcher\App\App([]);
+        $app = new Launcher\App\App();
 
         // 取Request
         $request = $app->buildRequest();
@@ -176,27 +175,18 @@ class Launcher {
      */
     public function call() {
         // 创建app
-        $app_name   = $this->params->app;
         $apps_conf  = \Swood\Dock::select('instance')['conf']->get('swood', 'apps');
-        if ($app_name) {
-            // 确认有没有
-            if (!isset($apps_conf[$app_name])) {
-                throw new \DomainException("app [$app_name] is not registered");
-            }
-        } else {
-            // 默认取第一个
-            $app_name = array_shift(array_keys($apps_conf->toArray()));
-        }
-
-        $class_name = "\\$app_name\App";
-        $app = new $class_name($apps_conf[$app_name]);
-        /* @var $app App\App */
+        $app_name   = $this->params->getAppName($apps_conf);
 
         // 拿到端口配置
-        $listen = $app->getListenConf($this->params->port);
-        if (!$listen) {
+        if (!isset($apps_conf[$app_name][$this->params->port])) {
             throw new \RuntimeException("port id is not valid");
         }
+        $listen = $apps_conf[$app_name][$this->params->port];
+
+        $class_name = "\\$app_name\App";
+        $app = new $class_name();
+        /* @var $app App\App */
 
         // 取Request
         $actions = $this->params->getCallActions();
@@ -247,9 +237,37 @@ class Launcher {
 
     /**
      * 执行单个action
+     *
+     * swtry exec Exec\ImportFromDis2
      */
     public function exec() {
+        // 创建app
+        $apps_conf  = \Swood\Dock::select('instance')['conf']->get('swood', 'apps');
+        $app_name   = $this->params->getAppName($apps_conf);
+        $app_class  = "\\$app_name\App";
+        $app = new $app_class();
+        /* @var $app App\App */
+        $app->setMode('cli');
 
+        // 处理action
+        $actions = $this->params->getCallActions();
+        foreach ($actions as $action) {
+            $result = $this->execAction($app, ...$action);
+            D::du($result->toArray());
+        }
+    }
+
+    private function execAction($app, $name, $params, $ver) {
+        // action name处理
+        $class = str_replace('/', '\\', $name);
+        if (!class_exists($class)) {
+            $class = $this->conf['exec']['default_space'] . "\\$class";
+        }
+
+        $action = $class::call($app, $ver);
+        /* @var $action Action */
+        $result = $action->main($params);
+        return $result;
     }
 
     /**

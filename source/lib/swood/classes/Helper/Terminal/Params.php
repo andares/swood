@@ -17,7 +17,7 @@ use Swood\Debug as D;
  *
  * @author andares
  */
-class Params extends \Helper\Meta {
+class Params {
     private $_argv;
     protected $_main    = [];
     protected $_current = '';
@@ -25,8 +25,6 @@ class Params extends \Helper\Meta {
     protected static $options_mapping = [];
 
     public function __construct($argv = null) {
-        parent::__construct();
-
         $this->_argv = $argv;
         $this->_argv && $this->parse($argv);
     }

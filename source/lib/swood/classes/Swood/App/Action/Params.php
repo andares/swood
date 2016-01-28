@@ -26,6 +26,6 @@ namespace Swood\App\Action;
  *
  * @author andares
  */
-abstract class Params extends \Helper\Meta{
+abstract class Params extends \Swood\Schema\Meta {
     //put your code here
 }

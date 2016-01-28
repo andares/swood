@@ -29,7 +29,9 @@ namespace Swood\Launcher\App;
  * @author andares
  */
 class Result extends \Swood\App\Action\Result {
-    protected static $_struct = [
-        'msg'    => '',
+    protected static $_schema = [
+        'msg'    => [
+            'default'   => '',
+        ],
     ];
 }

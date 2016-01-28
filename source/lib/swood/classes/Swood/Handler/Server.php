@@ -105,11 +105,19 @@ class Server {
 
         $this->server->setProcessType(\Swood\Server::PROCESSTYPE_MASTER);
 
-        foreach ($this->server->getAllApps() as $app) {
-            /* @var $app \Swood\App\App */
-            $app->start();
-        }
+        try {
+            foreach ($this->server->getAllApps() as $app) {
+                /* @var $app \Swood\App\App */
+                // 设置模式
+                $app->setMode('web');
 
+                $app->start();
+            }
+        } catch (\Exception $exc) {
+            D::logError($exc);
+            D::ec("server start fail");
+        }
+        D::ec("server is started");
     }
 
     /**
@@ -123,6 +131,12 @@ class Server {
             /* @var $app \Swood\App\App */
             $app->shutdown();
         }
+
+        // TODO hook shutdown
+        // TODO shutdown 目前在这里关一下连接
+        if (class_exists('\\Redb\Connections')) {
+            \Redb\Connections::closeAll();
+        }
     }
 
     /**
@@ -135,7 +149,7 @@ class Server {
 
         // 清除缓存
         if (function_exists('\opcache_reset')) {
-            D::du("Reset opcache", __CLASS__);
+            D::du("Reset opcache");
             \opcache_reset();
         }
 
@@ -190,11 +204,10 @@ class Server {
         }
 
         // hook
-        // TODO hook调用有待优化
         foreach ($this->mappingPort($connection_info['server_port']) as $app_name) {
             try {
                 $app = $this->server->getApp($app_name);
-                $app->hookAfterReceive();
+                // TODO hook app after receive
             } catch (\Exception $exc) {
                 D::logError($exc);
                 continue;
@@ -239,6 +252,8 @@ class Server {
 
     /**
      *
+     * @todo 未完成
+     *
      * @param \swoole_server $server
      * @param type $task_id
      * @param type $from_id
@@ -247,7 +262,6 @@ class Server {
     public function task(\swoole_server $server, $task_id, $from_id, $data) {
         D::du("Task got[$server->worker_pid]: $task_id");
 
-        // TODO 这里可能不需要循环是单个
         foreach ($this->server->getAllApps() as $app) {
             /* @var $app \Swood\App\App */
             if (!$app->worker) { // 并不是所有app都有task worker
@@ -259,6 +273,8 @@ class Server {
 
     /**
      *
+     * @todo 未完成
+     *
      * @param \swoole_server $server
      * @param type $task_id
      * @param type $data
@@ -266,7 +282,6 @@ class Server {
     public function finish(\swoole_server $server, $task_id, $data) {
         D::du("Task finish[$server->worker_pid]: $task_id");
 
-        // TODO 这里可能不需要循环是单个
         foreach ($this->server->getAllApps() as $app) {
             /* @var $app \Swood\App\App */
             $app->worker && $app->worker->taskFinish();

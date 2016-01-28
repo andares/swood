@@ -48,7 +48,9 @@ abstract class Action {
         // 载入action注册信息
         $conf   = $app->getConf()->get($app->conf_space, 'actions');
         $class  = get_called_class();
-        if (!isset($conf[$class])) {
+
+        // 判断注册状态
+        if (!isset($conf[$class]) || !in_array($app->getMode(), $conf[$class]['apply'])) {
             throw new \UnexpectedValueException("action is not register");
         }
 

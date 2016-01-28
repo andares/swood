@@ -19,7 +19,7 @@
  * MA 02110-1301  USA
  */
 
-namespace Swood\App;
+namespace Swood;
 use Swood\Debug as D;
 
 /**
@@ -28,23 +28,32 @@ use Swood\Debug as D;
  * @author andares
  */
 class Init {
-    public static function init($root, $is_test = false) {
-        static::composerSetup($root);
+    protected static $shutdown_funcions = [];
 
+    public static function registerShutdownFunction(callback $func) {
+        static::$shutdown_funcions[] = $func;
+    }
+
+    public static function init($composer_root, $is_test = false) {
+        static::composerSetup($composer_root);
+
+        $class = get_called_class();
         // 错误转违例
-        set_error_handler([get_called_class(), 'raiseError'], E_ALL ^ E_STRICT);
+        set_error_handler([$class, 'raiseError'], E_ALL ^ E_STRICT);
 
         // 全局违例捕获
         if (!$is_test) {
-            set_exception_handler([get_called_class(), 'raiseException']);
+            set_exception_handler([$class, 'raiseException']);
         }
 
         // 注册进程结束方法
-        register_shutdown_function([get_called_class(), 'processShutdown']);
+        // TODO 之后改为event + hook的形式
+        register_shutdown_function([$class, 'callShutdownFunctions']);
     }
 
-    protected static function composerSetup($root) {
-        $autoload = $root . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+    protected static function composerSetup($composer_root) {
+        $autoload = $composer_root . DIRECTORY_SEPARATOR . 'vendor' .
+            DIRECTORY_SEPARATOR . 'autoload.php';
         if (!file_exists($autoload)) {
             return false;
         }
@@ -71,7 +80,9 @@ class Init {
         die();
     }
 
-    function processShutdown() {
-        // do something..
+    public static function callShutdownFunctions() {
+        foreach (static::$shutdown_funcions as $func) {
+            $func();
+        }
     }
 }

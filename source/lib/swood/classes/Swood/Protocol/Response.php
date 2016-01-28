@@ -120,6 +120,8 @@ abstract class Response {
      * @param \Swood\App\Action\Result $result
      */
     public function setResult($action_id, \Swood\App\Action\Result $result) {
+        // auto confirm
+        $result->confirm();
         $this->result[$action_id] = $result->toArray();
     }
 

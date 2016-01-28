@@ -32,9 +32,6 @@ abstract class Worker extends WorkerBase {
     /**
      * action路由
      *
-     * @todo 路由到action
-     * @todo 版本问题处理
-     *
      * @param array $action_call
      * @return Action\Result
      */
@@ -44,7 +41,7 @@ abstract class Worker extends WorkerBase {
         $version = isset($action_call[2]) ? $action_call[2] : 0;
 
         // 调action
-        // TODO 暂时写死Action目录下
+        // TODO 目前写死 Action 目录下
         $class = "{$this->app->class_space}\\Action\\" . str_replace('/', '\\', $name);
         if (!class_exists($class)) {
             throw new \BadMethodCallException("method [$name] not exists");
@@ -70,7 +67,10 @@ abstract class Worker extends WorkerBase {
                     }
                 }
 
-                // TODO 触发action done hook
+                // TODO hook action done
+                // 暂时在这里清理掉载入的redb cache并存盘
+                \Redb\Cache::saveAll();
+                \Redb\Cache::clearAll();
             }
         } catch (\Exception $exc) {
             $header = $response->getHeader();
@@ -82,7 +82,7 @@ abstract class Worker extends WorkerBase {
             // 出错后清除所有之前返回的结果
             $response->clearResult();
         } finally {
-            // TODO 数据存储，触发request done hook
+            // TODO hook request done
         }
     }
 

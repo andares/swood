@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (C) 2015 andares.
+ * Copyright (C) 2016 andares.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,16 +19,24 @@
  * MA 02110-1301  USA
  */
 
-namespace Swood\App;
-use Swood\Debug as D;
+namespace Helper;
 
 /**
- * Description of TaskWorker
+ * Description of Uuid
  *
  * @author andares
  */
-abstract class TaskWorker extends WorkerBase {
-    public function taskCall() {
-        D::du("task call");
+class Uuid {
+    public static function gen($prefix = '')
+    {
+        if (function_exists('uuid_make')) {
+            uuid_create($v1);
+            uuid_make($v1, UUID_MAKE_V1);
+            uuid_export($v1, UUID_FMT_STR, $uuid);
+        } else {
+            $uuid = uuid_create();
+        }
+        return $prefix ? ($prefix . $uuid) : $uuid;
     }
+
 }

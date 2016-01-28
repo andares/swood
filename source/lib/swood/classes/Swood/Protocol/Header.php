@@ -27,17 +27,16 @@ use Swood\Debug as D;
  *
  * @author andares
  */
-class Header implements \ArrayAccess {
-    use \Swood\Schema\Mapping;
+class Header extends \Swood\Schema\Mapping {
 
 //    protected static $_schema = [
-//        'timestamp' => 0,
-//        'timeinfo'  => 1,       // microtime和时区
-//        'dev'       => 2,       // 设备号, 设备类型，客户端版本号等相关数据
-//        'lang'      => 3,       // 本地化数据
-//        'token'     => 4,       // 认证token
-//        'verify'    => 5,       // 加密信息列表
-//        'error'     => 6,       // 错误信息
+//        'timestamp' => ['key' => 0],
+//        'timeinfo'  => ['key' => 1],       // microtime和时区
+//        'dev'       => ['key' => 2],       // 设备号, 设备类型，客户端版本号等相关数据
+//        'lang'      => ['key' => 3],       // 本地化数据
+//        'token'     => ['key' => 4],       // 认证token
+//        'verify'    => ['key' => 5],       // 加密信息列表
+//        'error'     => ['key' => 6],       // 错误信息
 //    ];
 
     public function __construct($data = []) {
@@ -51,9 +50,13 @@ class Header implements \ArrayAccess {
         return false;
     }
 
-    public function raiseError(\Exception $error) {
-        $message = ($error instanceof \Swood\App\Exception && !D::level()) ?
-            $error->getUserMessage() : $error->getMessage();
+    public function raiseError(\Exception $error, $default_msg = 'system is busy') {
+        if (D::level()) {
+            $message = $error->getMessage();
+        } else {
+            $message = $error instanceof \Swood\App\Exception ?
+                $error->getUserMessage() : $default_msg;
+        }
         $this['error'] = [$message, $error->getCode()];
     }
 }

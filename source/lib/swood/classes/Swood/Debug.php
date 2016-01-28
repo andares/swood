@@ -96,6 +96,10 @@ class Debug {
         echo $output;
     }
 
+    public static function dt($var) {
+        echo self::d($var, '', -1);
+    }
+
     public static function d($var, $title = '', $level = 1) {
         static $counter = 0;
 

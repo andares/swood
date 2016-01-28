@@ -14,6 +14,5 @@ namespace Swood\Launcher\App\Protocol;
 class RequestHeader extends \Swood\Protocol\Header {
     protected static $_schema = [];
 
-    protected $_data = [
-    ];
+    protected $_data = [];
 }

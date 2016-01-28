@@ -20,6 +20,7 @@
  */
 
 namespace Swood\Launcher;
+use Swood\Debug as D;
 
 /**
  * Description of Params
@@ -88,6 +89,20 @@ class Params extends \Helper\Terminal\Params {
         return $header;
     }
 
+    public function getAppName(\Swood\Conf\Yml $apps_conf) {
+        $app_name   = $this->app;
+        if ($app_name) {
+            // 确认有没有
+            if (!isset($apps_conf[$app_name])) {
+                throw new \DomainException("app [$app_name] is not registered");
+            }
+        } else {
+            // 默认取第一个
+            $app_name = array_shift(array_keys($apps_conf->toArray()));
+        }
+        return $app_name;
+    }
+
     public function getCallActions() {
         // api版本
         $ver = intval($this->ver);
@@ -103,15 +118,16 @@ class Params extends \Helper\Terminal\Params {
                 }
                 $action = $this->_main[$i];
 
+                // 补一下缺少params的情况
+                if (!isset($this->_main[$i + 1])) {
+                    $actions[] = [$action, [], $ver];
+                }
+
                 $col++;
             } else {
-                if (isset($this->_main[$i])) {
-                    $params = $this->parseCode($this->_main[$i]);
-                    if (!$params) {
-                        throw new \InvalidArgumentException("params format error");
-                    }
-                } else {
-                    $params = [];
+                $params = $this->parseCode($this->_main[$i]);
+                if (!$params) {
+                    throw new \InvalidArgumentException("params format error");
                 }
                 $actions[] = [$action, $params, $ver];
 

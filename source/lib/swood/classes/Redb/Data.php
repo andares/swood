@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (C) 2015 andares.
+ * Copyright (C) 2016 andares.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,16 +19,36 @@
  * MA 02110-1301  USA
  */
 
-namespace Swood\App;
+namespace Redb;
 use Swood\Debug as D;
 
 /**
- * Description of TaskWorker
+ * Description of Data
  *
  * @author andares
  */
-abstract class TaskWorker extends WorkerBase {
-    public function taskCall() {
-        D::du("task call");
+abstract class Data extends \Swood\Schema\Meta {
+
+    /**
+     * id字段名
+     * @var string
+     */
+    protected static $_id_field = 'id';
+
+    /**
+     * 获取id
+     * @return mixed
+     */
+    public function getId() {
+        return $this->{static::$_id_field};
     }
+
+    /**
+     * 设置id
+     * @param mixed $id
+     */
+    public function setId($id) {
+        $this->{static::$_id_field} = $id;
+    }
+
 }

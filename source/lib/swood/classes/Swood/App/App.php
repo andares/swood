@@ -20,6 +20,7 @@
  */
 
 namespace Swood\App;
+use Swood\Debug as D;
 
 /**
  * Description of App
@@ -45,15 +46,26 @@ abstract class App {
     public $worker = null;
 
     /**
-     *
-     * @var array
+     * 设置app当前工作模式。工作模式可用于程序流程上的多种判定，为不同的模式提供不同的判定及行为。
+     * 目前用于action判断使用哪个注册表。
+     * @var string
      */
-    protected $conf = [];
+    protected $mode = 'web';
 
-    public function __construct($conf) {
-        $this->conf = $conf;
-
+    public function __construct() {
         $this->initSpaceName();
+    }
+
+    /**
+     *
+     * @param string $mode
+     */
+    public function setMode($mode) {
+        $this->mode = $mode;
+    }
+
+    public function getMode() {
+        return $this->mode;
     }
 
     protected function initSpaceName() {
@@ -81,18 +93,6 @@ abstract class App {
      */
     public function getConf() {
         return \Swood\Dock::select('instance')['conf'];
-    }
-
-    public function getListenConf($port_id = null) {
-        if ($port_id !== null) {
-            return isset($this->conf['listen'][$port_id]) ? $this->conf['listen'][$port_id] : null;
-        } else {
-            return $this->conf['listen'];
-        }
-    }
-
-    public function hookAfterReceive() {
-        // do something..
     }
 
     /**

@@ -25,5 +25,5 @@ $autoload->register();
 
 \Swood\Debug::setLevel(2);
 
-\Swood\App\Init::init(__DIR__ . '/../sample', IN_TEST);
+\Swood\Init::init(__DIR__ . '/../sample', IN_TEST);
 

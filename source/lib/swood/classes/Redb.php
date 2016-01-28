@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (C) 2015 andares.
+ * Copyright (C) 2016 andares.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,16 +19,27 @@
  * MA 02110-1301  USA
  */
 
-namespace Swood\App;
-use Swood\Debug as D;
-
 /**
- * Description of TaskWorker
- *
+ * Description of Redb
+"/home/worker/local/bin/php" "-d" "phar.readonly=0" "/home/worker/local/bin/phpunit-skelgen" "--ansi" "generate-test" "--bootstrap=/home/andares/repos/swood/tests/bootstrap.php" "Redb" "/home/andares/repos/swood/source/lib/swood/classes/Redb.php" "RedbTest" "/home/andares/repos/swood/tests/source/lib/swood/classes/RedbTest.php"
  * @author andares
  */
-abstract class TaskWorker extends WorkerBase {
-    public function taskCall() {
-        D::du("task call");
+class Redb {
+    public static function init($is_test = false, callback $shutdown_register = null) {
+        if ($shutdown_register) {
+            $shutdown_register([self, 'closeAllConnections']);
+        }
+    }
+
+    public static function query() {
+
+    }
+
+    public static function releaseAllEnities() {
+
+    }
+
+    public static function closeAllConnections() {
+
     }
 }

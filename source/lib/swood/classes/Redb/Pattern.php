@@ -24,9 +24,33 @@ namespace Redb;
 /**
  * Description of Pattern
  *
+ *
  * @author andares
  */
-abstract class Pattern {
-    abstract public function update();
-    abstract public function find();
+trait Pattern {
+    protected static $_model_space = '';
+
+    protected static function _getModelSpace() {
+        if (!static::$_model_space) {
+            $space = str_replace('\\Entity\\', '\\Model\\', __CLASS__);
+            static::$_model_space = $space;
+        }
+        return static::$_model_space;
+    }
+
+    protected static function _wrapIds(array $ids) {
+        $wrapped_ids = [];
+        foreach ($ids as $key => $id) {
+            $wrapped_ids[$key] = static::_wrapId($id);
+        }
+        return $wrapped_ids;
+    }
+
+    abstract public static function genId();
+    abstract protected static function _wrapId($id);
+    abstract protected static function _load($id);
+    abstract protected static function _loadList(array $ids);
+    abstract protected function _create($update);
+    abstract protected function _update($update);
+    abstract protected function _delete();
 }

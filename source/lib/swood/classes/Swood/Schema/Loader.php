@@ -39,6 +39,9 @@ trait Loader {
      */
     public static function getSchema() {
         if (is_string(static::$_schema)) {
+            if (!static::$_schema) {
+                throw new \RuntimeException("schema of " . __CLASS__ . " is not defined");
+            }
             static::$_schema = static::getSchemaConf()->get('schema', static::$_schema);
         }
 

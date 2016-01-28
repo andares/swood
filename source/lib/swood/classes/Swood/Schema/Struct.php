@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (C) 2015 andares.
+ * Copyright (C) 2016 andares.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,16 +19,13 @@
  * MA 02110-1301  USA
  */
 
-namespace Swood\App;
-use Swood\Debug as D;
+namespace Swood\Schema;
 
 /**
- * Description of TaskWorker
+ * Description of Struct
  *
  * @author andares
  */
-abstract class TaskWorker extends WorkerBase {
-    public function taskCall() {
-        D::du("task call");
-    }
+abstract class Struct extends Meta {
+    public function init(array $data = []) {}
 }

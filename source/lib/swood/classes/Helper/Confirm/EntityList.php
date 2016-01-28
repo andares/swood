@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (C) 2015 andares.
+ * Copyright (C) 2016 andares.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,16 +19,24 @@
  * MA 02110-1301  USA
  */
 
-namespace Swood\App;
+namespace Helper\Confirm;
 use Swood\Debug as D;
 
 /**
- * Description of TaskWorker
+ * Description of EntityList
  *
  * @author andares
  */
-abstract class TaskWorker extends WorkerBase {
-    public function taskCall() {
-        D::du("task call");
+trait EntityList {
+    protected function entities2array($list) {
+        $result = [];
+        foreach ($list as $key => $entity) {
+            /* @var $entity \Redb\Entity */
+            if (!($entity instanceof \Redb\Entity)) {
+                throw new \UnexpectedValueException("list unit is not entity");
+            }
+            $result[$key] = $entity->toArray();
+        }
+        return $result;
     }
 }

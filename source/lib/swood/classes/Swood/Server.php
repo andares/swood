@@ -59,9 +59,9 @@ class Server {
         $this->createHandler($listen);
 
         // 创建launcher监听
-        $launcher_app_name = 'Swood\Launcher\App';
-        $this->apps_conf[$launcher_app_name] = ['listen' => [$listen]];
-        $this->handler->setPortMapping($listen['port'], $launcher_app_name);
+        $app_name = 'Swood\Launcher\App';
+        $this->apps_conf[$app_name] = ['listen' => [$listen]];
+        $this->handler->setPortMapping($listen['port'], $app_name);
     }
 
     public function __call($method, $args = []) {
@@ -115,7 +115,7 @@ class Server {
 
         if (!isset($this->apps[$app_name])) {
             $class_name = "\\$app_name\App";
-            $this->apps[$app_name] = new $class_name($this->apps_conf[$app_name]);
+            $this->apps[$app_name] = new $class_name();
             $this->apps[$app_name]->setServer($this);
         }
 

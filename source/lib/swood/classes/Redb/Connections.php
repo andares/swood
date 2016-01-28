@@ -22,10 +22,53 @@
 namespace Redb;
 
 /**
- * Description of Connections
+ * 连接管理器
  *
  * @author andares
  */
 class Connections {
-    //put your code here
+    /**
+     *
+     * @var Driver\Drive|array
+     */
+    private static $drivers = [];
+
+    /**
+     *
+     * @param type $type
+     * @param type $name
+     * @return type
+     */
+    public static function get($type, $name, $auto_connect = true) {
+        if (!isset(self::$drivers[$type][$name])) {
+            $class = "\\Redb\\Driver\\$type";
+            self::$drivers[$type][$name] = new $class();
+            $auto_connect && self::$drivers[$type][$name]->connect($name);
+        }
+        return self::$drivers[$type][$name];
+    }
+
+    /**
+     * 连接管理器
+     * @param type $type
+     */
+    public static function closeAll($type = null) {
+        if ($type) {
+            if (isset(self::$drivers[$type])) {
+                foreach (self::$drivers[$type] as $name => $driver) {
+                    /* @var $driver Driver\Driver */
+                    $driver->close();
+                    unset(self::$drivers[$type][$name]);
+                }
+            }
+        } else {
+            foreach (self::$drivers as $type => $driver_list) {
+                foreach ($driver_list as $name => $driver) {
+                    /* @var $driver Driver\Driver */
+                    $driver->close();
+                    unset(self::$drivers[$type][$name]);
+                }
+            }
+        }
+    }
 }

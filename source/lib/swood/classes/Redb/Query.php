@@ -27,5 +27,23 @@ namespace Redb;
  * @author andares
  */
 class Query {
-    //put your code here
+    private $conds = [];
+
+    private $raw = [];
+
+    public function __invoke(...$args) {
+        $this->setCond(...$args);
+    }
+
+    public function setCond($field, $operator = null) {
+        if (is_array($field)) {
+            $this->conds = $field;
+        } else {
+            $this->conds[$field] = $operator;
+        }
+    }
+
+    public function setRaw(array $raw) {
+        $this->raw = $raw;
+    }
 }
