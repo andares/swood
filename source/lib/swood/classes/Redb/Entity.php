@@ -48,24 +48,6 @@ abstract class Entity extends Data {
     protected $_save_method = self::SAVEMETHOD_UPDATE;
 
     /**
-     * 有更新过的字段列表
-     * @var array
-     */
-    protected $_update_fields    = [];
-
-    /**
-     * confirm过后确定要变更的字段
-     * @var array
-     */
-    protected $_update_confirmed = [];
-
-    /**
-     *
-     * @var boolean
-     */
-    private $_fill_when_load = false;
-
-    /**
      * 获得entity名
      * @return string
      */
@@ -135,6 +117,7 @@ abstract class Entity extends Data {
         // 生成id
         if ($id) {
             $id = static::_wrapId($id);
+            static::_createId($id);
         } else {
             $id = static::genId();
         }
@@ -178,9 +161,7 @@ abstract class Entity extends Data {
         }
 
         // 判断是创建还是更新
-        if ($this->createdat) {
-            $this->_confirmUpdate();
-        } else {
+        if (!$this->createdat) {
             // 创建时间
             $this->createdat = time();
 
@@ -190,39 +171,10 @@ abstract class Entity extends Data {
     }
 
     /**
-     * 是否有更新
-     * @return boolean
-     */
-    public function hasUpdate() {
-        $result = false;
-
-        switch ($this->_save_method) {
-            case self::SAVEMETHOD_UPDATE:
-                $result = $this->_update_confirmed ? true : false;
-                break;
-            case self::SAVEMETHOD_CREATE:
-            case self::SAVEMETHOD_DELETE:
-                $result = true;
-                break;
-
-            case self::SAVEMETHOD_NONE:
-            default:
-                // do nothing..
-                break;
-        }
-        return $result;
-    }
-
-    /**
      * 保存至数据库
-     * @return boolean
+     * @return bool
      */
     public function save() {
-        // 无更新不存盘
-        if (!$this->hasUpdate()) {
-            return false;
-        }
-
         $save_method = $this->_save_method;
         // hook
         $this->_hook_before_save($save_method);
@@ -237,9 +189,7 @@ abstract class Entity extends Data {
                 $this->_save_method = self::SAVEMETHOD_UPDATE;
                 break;
             case self::SAVEMETHOD_UPDATE:
-                if ($this->_update()) {
-                    $this->clearUpdate();
-                }
+                $this->_update();
                 break;
             case self::SAVEMETHOD_DELETE:
                 if ($this->_delete()) {
@@ -372,58 +322,8 @@ abstract class Entity extends Data {
      * confirm之后无效
      */
     public function clearUpdate() {
-        // 移除更新信息
-        $this->_update_fields   = $this->_update_confirmed = [];
         // 重新载入数据
         $this->_reload();
-    }
-
-    /**
-     * 标记某字段有所更新
-     * @param type $name
-     * @param type $value
-     */
-    public function fieldUpdated($name) {
-        !isset($this->_update_fields[$name]) && $this->_update_fields[$name] = 1;
-    }
-
-    /**
-     * 获取经过schema中键值映射的等更新字段
-     *
-     * @return array
-     */
-    public function getUpdateWithKey() {
-        $update = [];
-        foreach ($this->_update_confirmed as $field => $flag) {
-            $value = $this->$field;
-            $update[static::_getKey($field)] = is_object($value) ? $value->toArray() : $value;
-        }
-        return $update;
-    }
-
-    /**
-     * 载入时填充，此方法不会标记update fields
-     * @param array $data
-     */
-    public function fillWhenLoad(array $data) {
-        // 开关变量绕开__set中对update fields的处理
-        // TODO 这里的处理方案有待重构和改进
-        $this->_fill_when_load = true;
-        $this->fill($data);
-        $this->_fill_when_load = false;
-    }
-
-    /**
-     * 确认update fields中的数据到update confirmed中
-     */
-    private function _confirmUpdate() {
-        // 处理update数据
-        foreach ($this->_update_fields as $field => $flag) {
-            $this->_update_confirmed[$field] = $this->$field;
-        }
-
-        // 重置fields
-        $this->_update_fields = [];
     }
 
     /**
@@ -432,9 +332,17 @@ abstract class Entity extends Data {
      * @param mixed $value
      */
     public function __set($name, $value) {
-        // 备份修改前的值，这个在一次confirm之前只记录最早的原始值
-        !$this->_fill_when_load && $this->fieldUpdated($name);
         parent::__set($name, $value);
+    }
+
+    /**
+     * 严格来讲这是一个基于创建时直接指定id的勾子。
+     * 主要用于在一些特殊的场合（比如默认自增id）用于检测自建id的合法性，如不合法建议直接抛出违例。
+     * @param mixed $id
+     * @return bool
+     */
+    protected static function _createId($id) {
+        return true;
     }
 
     /**

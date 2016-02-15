@@ -99,7 +99,7 @@ abstract class Meta implements \ArrayAccess, \IteratorAggregate {
     /**
      * 填充数据
      * @param array $data
-     * @return boolean
+     * @return bool
      */
     public function fill($data) {
         if (!is_array($data) && !is_object($data)) {
@@ -121,7 +121,7 @@ abstract class Meta implements \ArrayAccess, \IteratorAggregate {
 
     /**
      * 转换到数组
-     * @param boolean $by_key
+     * @param bool $by_key
      * @return array
      */
     public function toArray($by_key = false) {
@@ -157,7 +157,7 @@ abstract class Meta implements \ArrayAccess, \IteratorAggregate {
      * 生成重载方法
      * @param type $prefix
      * @param type $name
-     * @return boolean|string
+     * @return bool|string
      */
     protected function _getOverloadMethod($prefix, $name) {
         $method = "$prefix$name";

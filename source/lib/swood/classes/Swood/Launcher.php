@@ -5,10 +5,6 @@ use Swood\Debug as D;
 /**
  * 启动器
  *
- * @note test: swtry call Poi/GetById 'id[]=111&id[]=222' -H 'token=wwwwww'
- * @note test: swood call aaa 'bbb[]=22' -H 'token=wwwwww' -C ~/repos/117go/gis2
- * @note test: swtry call aaa 'bbb[]=22' ccc '{"ddd":100}' -H 'token=wwwwww'
- *
  * @author andares
  */
 class Launcher {
@@ -179,13 +175,10 @@ class Launcher {
         $app_name   = $this->params->getAppName($apps_conf);
 
         // 拿到端口配置
-        var_dump($app_name);
-        var_dump($this->params->port);
-        var_dump($apps_conf[$app_name]);
-        if (!isset($apps_conf[$app_name][$this->params->port])) {
+        if (!isset($apps_conf[$app_name]['listen'][$this->params->port])) {
             throw new \RuntimeException("port id is not valid");
         }
-        $listen = $apps_conf[$app_name][$this->params->port];
+        $listen = $apps_conf[$app_name]['listen'][$this->params->port];
 
         $class_name = "\\$app_name\App";
         $app = new $class_name();

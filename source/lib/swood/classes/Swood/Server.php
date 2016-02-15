@@ -1,14 +1,15 @@
 <?php
 
 namespace Swood;
-use Swood\Debug as D;
+use Swoole,
+    Swood\Debug as D;
 
 /**
  * Description of Server
  *
  * @author andares
  *
- * @property \swoole_server $swoole swoole server
+ * @property Swoole\Server $swoole swoole server
  */
 class Server {
     use Runtime;
@@ -86,7 +87,7 @@ class Server {
     }
 
     private function createSwooleServer(array $listen, array $swoole_conf) {
-        $this->swoole = new \swoole_server($listen['host'], $listen['port'],
+        $this->swoole = new Swoole\Server($listen['host'], $listen['port'],
             \SWOOLE_PROCESS, constant($listen['type']));
         $swoole_conf && $this->swoole->set($swoole_conf);
     }

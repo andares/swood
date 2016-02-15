@@ -20,7 +20,8 @@
  */
 
 namespace Swood\Handler;
-use Swood\Debug as D;
+use Swoole,
+    Swood\Debug as D;
 
 /**
  * Description of Server
@@ -95,11 +96,11 @@ class Server {
 
     /**
      *
-     * @param \swoole_server $server
+     * @param Swoole\Server $server
      */
-    public function start(\swoole_server $server) {
+    public function start(Swoole\Server $server) {
         // 启动前输出一下autoload到的数据
-        D::dl(\Swood\Dock::select('swood')['autoload']->getLoadedClasses(), "Autoload classes list before server started");
+        D::log('debug', \Swood\Dock::select('swood')['autoload']->getLoadedClasses(), "Autoload classes list before server started");
 
         D::du("Server start [$server->master_pid]");
 
@@ -122,9 +123,9 @@ class Server {
 
     /**
      *
-     * @param \swoole_server $server
+     * @param Swoole\Server $server
      */
-    public function shutdown(\swoole_server $server) {
+    public function shutdown(Swoole\Server $server) {
         D::du("Server shutdown [$server->master_pid]");
 
         foreach ($this->server->getAllApps() as $app) {
@@ -141,10 +142,10 @@ class Server {
 
     /**
      *
-     * @param \swoole_server $server
+     * @param Swoole\Server $server
      * @param type $worker_id
      */
-    public function workerStart(\swoole_server $server, $worker_id) {
+    public function workerStart(Swoole\Server $server, $worker_id) {
         D::du("Worker start[$server->worker_pid]: $worker_id");
 
         // 清除缓存
@@ -166,7 +167,7 @@ class Server {
         }
     }
 
-    public function receive(\swoole_server $server, $fd, $from_id, $data) {
+    public function receive(Swoole\Server $server, $fd, $from_id, $data) {
         D::du("received[$server->worker_pid]");
 
         // 连接信息
@@ -217,10 +218,10 @@ class Server {
 
     /**
      *
-     * @param \swoole_server $server
+     * @param Swoole\Server $server
      * @param type $worker_id
      */
-    public function workerStop(\swoole_server $server, $worker_id) {
+    public function workerStop(Swoole\Server $server, $worker_id) {
         D::du("Worker stop[$server->worker_pid]: $worker_id");
 
         foreach ($this->server->getAllApps() as $app) {
@@ -231,12 +232,12 @@ class Server {
 
     /**
      *
-     * @param \swoole_server $server
+     * @param Swoole\Server $server
      * @param type $worker_id
      * @param type $worker_pid
      * @param type $exit_code
      */
-    public function workerError(\swoole_server $server, $worker_id, $worker_pid, $exit_code) {
+    public function workerError(Swoole\Server $server, $worker_id, $worker_pid, $exit_code) {
         // NOTICE 这里不能调$server->worker_pid，在某些情况下会访问不到该字段
         D::du("Worker error: $worker_id - $exit_code");
 
@@ -254,12 +255,12 @@ class Server {
      *
      * @todo 未完成
      *
-     * @param \swoole_server $server
+     * @param Swoole\Server $server
      * @param type $task_id
      * @param type $from_id
      * @param type $data
      */
-    public function task(\swoole_server $server, $task_id, $from_id, $data) {
+    public function task(Swoole\Server $server, $task_id, $from_id, $data) {
         D::du("Task got[$server->worker_pid]: $task_id");
 
         foreach ($this->server->getAllApps() as $app) {
@@ -275,11 +276,11 @@ class Server {
      *
      * @todo 未完成
      *
-     * @param \swoole_server $server
+     * @param Swoole\Server $server
      * @param type $task_id
      * @param type $data
      */
-    public function finish(\swoole_server $server, $task_id, $data) {
+    public function finish(Swoole\Server $server, $task_id, $data) {
         D::du("Task finish[$server->worker_pid]: $task_id");
 
         foreach ($this->server->getAllApps() as $app) {

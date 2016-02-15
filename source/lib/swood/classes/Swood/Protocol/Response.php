@@ -170,7 +170,7 @@ abstract class Response {
      *
      * @note 可在子类中复写此方法自定义判断规则
      *
-     * @return boolean
+     * @return bool
      */
     public function hasError() {
         return $this->getHeader()->hasError();

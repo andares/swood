@@ -46,25 +46,13 @@ class Debug {
 
     /**
      *
-     * @todo 临时先用一下dl代替，之后补充
-     *
      * @param mixed $var
      * @param string $title
      * @param int $level
      */
-    public static function log(...$argv) {
-        self::dl(...$argv);
-    }
-
-    /**
-     *
-     * @param mixed $var
-     * @param string $title
-     * @param int $level
-     */
-    public static function dl(...$argv) {
+    public static function log($file = 'debug', ...$argv) {
         $output = self::d(...$argv);
-        self::logger('debug', $output);
+        self::logger($file, $output);
     }
 
     /**
@@ -90,8 +78,7 @@ class Debug {
      * @param string $title
      * @param int $level
      */
-    public static function du(...$argv)
-    {
+    public static function du(...$argv) {
         $output = self::d(...$argv);
         echo $output;
     }
@@ -137,7 +124,7 @@ class Debug {
      * @param string $content
      * @param type $base_path
      * @param string $time
-     * @return boolean
+     * @return bool
      */
     public static function logger($file, $content, $base_path = null, $time = null) {
         // 基本数据获取

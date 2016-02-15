@@ -94,9 +94,8 @@ class Cache {
     public static function gc($entity_name) {
         foreach (self::$entities[$entity_name] as $id => $entity) {
             /* @var $entity Entity */
-            if (!$entity->hasUpdate()) {
-                unset(self::$entities[$entity_name][$id]);
-            }
+            // TODO 暂时gc时没有对有过修改的entity进行处理
+            unset(self::$entities[$entity_name][$id]);
         }
     }
 

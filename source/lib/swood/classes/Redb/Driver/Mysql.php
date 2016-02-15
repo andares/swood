@@ -22,25 +22,13 @@
 namespace Redb\Driver;
 
 /**
- * Description of MongoDB
+ * Description of  Mysql
  *
  * @author andares
  *
  */
-class MongoDB extends Driver {
-    public static $driver_conf = 'mongodb';
-
-    /**
-     * mongo连接列表
-     * @var array
-     */
-    private static $clients = [];
-
-    /**
-     *
-     * @var string
-     */
-    private $host_uri = '';
+class Mysql extends Driver {
+    public static $driver_conf = 'mysql';
 
     /**
      *
@@ -52,17 +40,20 @@ class MongoDB extends Driver {
         $conf = $this->getConf($name);
 
         try {
-            if (!isset(self::$clients[$conf['host']])) {
-                self::$clients[$conf['host']] = new \MongoClient($conf['host'], $conf['options']);
-            }
+            $dsn     = "mysql:host={$conf['host']};port={$conf['port']};charset={$conf['charset']};dbname={$conf['db']}";
+            $options = [
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            ];
+            isset($conf['options']['persist']) &&
+                $options[\PDO::ATTR_PERSISTENT] = (bool)$conf['options']['persist'];
+            isset($conf['options']['timeout']) &&
+                $options[\PDO::ATTR_TIMEOUT] = (bool)$conf['options']['timeout'];
 
-            $this->conn = self::$clients[$conf['host']]->selectDB($conf['db']);
+            $this->conn = new \PDO($dsn, $conf['user'], $conf['pass'], $options);
         } catch (\Exception $exc) {
             // 暂时继续外抛
             throw $exc;
         }
-
-        $this->host_uri = $conf['host'];
         return $this;
     }
 
@@ -70,23 +61,15 @@ class MongoDB extends Driver {
      *
      */
     public function close() {
-        self::$clients[$this->host_uri]->close();
+        unset($this->conn);
     }
 
     /**
      *
-     * @return \MongoDB
+     * @return \PDO
      */
     public function getConn() {
         return $this->conn;
     }
 
-    /**
-     *
-     * @param string $collection
-     * @return \MongoCollection
-     */
-    public function getCollection($collection) {
-        return $this->conn->selectCollection($collection);
-    }
 }

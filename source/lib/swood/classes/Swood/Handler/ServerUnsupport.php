@@ -20,7 +20,8 @@
  */
 
 namespace Swood\Handler;
-use Swood\Debug as D;
+use Swoole,
+    Swood\Debug as D;
 
 /**
  * Description of ServerUnsupport
@@ -55,36 +56,36 @@ trait ServerUnsupport {
      *
      * @todo onTimer事件可能会被移除，暂时不支持
      *
-     * @param \swoole_server $server
+     * @param Swoole\Server $server
      * @param type $interval
      */
-    public function timer(\swoole_server $server, $interval) {
+    public function timer(Swoole\Server $server, $interval) {
         D::du("timer trigger[$server->worker_pid]: $interval", "Unsupported callback raise");
 
     }
 
-    public function packet(\swoole_server $server, $data, array $client_info) {
+    public function packet(Swoole\Server $server, $data, array $client_info) {
         D::du("udp received", "Unsupported callback raise");
     }
 
-    public function pipeMessage(\swoole_server $server, $from_id, $message) {
+    public function pipeMessage(Swoole\Server $server, $from_id, $message) {
         D::du("send message received", "Unsupported callback raise");
     }
 
-    public function connect(\swoole_server $server, $fd, $from_id) {
+    public function connect(Swoole\Server $server, $fd, $from_id) {
         D::du("connected", "Unsupported callback raise");
     }
 
-    public function close(\swoole_server $server, $fd, $from_id) {
+    public function close(Swoole\Server $server, $fd, $from_id) {
         D::du("closed", "Unsupported callback raise");
     }
 
-    public function managerStart(\swoole_server $server) {
+    public function managerStart(Swoole\Server $server) {
         D::du("manager started", "Unsupported callback raise");
         $this->server->setProcessType(\Swood\Server::PROCESSTYPE_MANAGER);
     }
 
-    public function managerStop(\swoole_server $server) {
+    public function managerStop(Swoole\Server $server) {
         D::du("manager stopped", "Unsupported callback raise");
     }
 

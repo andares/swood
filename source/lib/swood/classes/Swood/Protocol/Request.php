@@ -52,7 +52,7 @@ abstract class Request {
             $data = $this->decode($data);
             if (!$data) {
                 $data = [];
-                D::log('request data decode fail', 'error');
+                D::log('debug', 'request data decode fail', 'error');
             }
         }
 

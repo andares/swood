@@ -29,38 +29,43 @@ use Swood\Debug as D;
  */
 class MongoDB extends Model {
 
-    protected static function _read($id, \Redb\Driver\Driver $conn) {
-        $collection = static::_getCollection($conn);
+    protected static function _read($id, \Redb\Driver\Driver $driver) {
+        $collection = static::_getCollection($driver);
         $row = $collection->findOne([static::$_id_field => $id]);
         return $row;
     }
 
-    protected static function _readByIds(array $ids, \Redb\Driver\Driver $conn) {
-        $collection = static::_getCollection($conn);
+    protected static function _readByIds(array $ids, \Redb\Driver\Driver $driver) {
+        $collection = static::_getCollection($driver);
         $cursor = $collection->find([static::$_id_field => ['$in' => $ids]]);
         foreach ($cursor as $row) {
             yield $row;
         }
     }
 
-    protected static function _create($id, array $data, \Redb\Driver\Driver $conn) {
-        $collection = static::_getCollection($conn);
+    protected static function _create($id, array $data, \Redb\Driver\Driver $driver) {
+        $collection = static::_getCollection($driver);
 
         $cond   = [static::$_id_field => $id];
         $update = ['$set' => $data];
         return $collection->update($cond, $update, ['upsert' => true]);
     }
 
-    protected static function _update($id, array $data, \Redb\Driver\Driver $conn) {
-        $collection = static::_getCollection($conn);
+    protected static function _update($id, array $data, \Redb\Driver\Driver $driver) {
+        $data   = $this->_getUpdateFields($data);
+        if (!$data) {
+            return true;
+        }
+
+        $collection = static::_getCollection($driver);
 
         $cond   = [static::$_id_field => $id];
         $update = ['$set' => $data];
         return $collection->update($cond, $update, ['upsert' => true]);
     }
 
-    protected static function _delete($id, \Redb\Driver\Driver $conn) {
-        $collection = static::_getCollection($conn);
+    protected static function _delete($id, \Redb\Driver\Driver $driver) {
+        $collection = static::_getCollection($driver);
 
         $cond   = [static::$_id_field => $id];
         return $collection->remove($cond);
@@ -70,8 +75,8 @@ class MongoDB extends Model {
      *
      * @return \MongoCollection
      */
-    private static function _getCollection(\Redb\Driver\MongoDB $conn) {
-        return $conn->getCollection(static::$_name);
+    protected static function _getCollection(\Redb\Driver\MongoDB $driver) {
+        return $driver->getCollection(static::$_name);
     }
 
 }

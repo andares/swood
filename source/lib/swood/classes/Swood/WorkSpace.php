@@ -23,11 +23,11 @@ namespace Swood;
 use Swood\Debug as D;
 
 /**
- * Description of WorkDir
+ * Description of WorkSpace
  *
  * @author andares
  */
-class WorkDir {
+class WorkSpace {
     private $path;
     private $is_test;
 
@@ -47,13 +47,11 @@ class WorkDir {
     public function init($conf_scene, $debug_level = null) {
         $autoload_path  = $this->getDir('classes');
         $conf_path      = $this->getDir('conf');
-        $i18n_path      = $this->getDir('i18n');
 
         if (!$this->is_test) {
             $result = $this->checkEnv([
                 $autoload_path,
                 $conf_path,
-                $i18n_path,
             ]);
             if (!$result) {
                 throw new \RuntimeException('env check fail');
@@ -108,11 +106,11 @@ class WorkDir {
 
         $version = explode('.', \swoole_version());
         $require = [
-            1, 7, 21,
+            1, 8, 1,
         ];
         foreach ($require as $key => $value) {
             if ($value[$key] > $version[$key]) {
-                D::ec(" * Check Swoole version ...... " . \swoole_version() . " >> Fail! (require 1.7.6)");
+                D::ec(" * Check Swoole version ...... " . \swoole_version() . " >> Fail! (require 1.8.1)");
                 return false;
             }
         }
@@ -121,7 +119,7 @@ class WorkDir {
         // 检查目录
         foreach ($check_path as $path) {
             if (!file_exists($path)) {
-                throw new \RuntimeException("work dir [$this->path] is incomplete");
+                throw new \RuntimeException("work dir [$this->path] is incomplete. ($path not exist)");
             }
         }
 

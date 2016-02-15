@@ -11,7 +11,7 @@ trait Runtime {
 
     /**
      *
-     * @var \swoole_server|\swoole_client
+     * @var \Swoole\Server|\Swoole\Client
      */
     public $swoole;
 

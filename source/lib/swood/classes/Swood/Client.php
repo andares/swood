@@ -20,7 +20,8 @@
  */
 
 namespace Swood;
-use Swood\Debug as D;
+use Swoole,
+    Swood\Debug as D;
 
 /**
  * Description
@@ -29,7 +30,7 @@ use Swood\Debug as D;
  *
  * @author andares
  *
- * @property \swoole_client $swoole swoole client
+ * @property Swoole\Client $swoole swoole client
  */
 class Client {
     use Runtime;
@@ -62,15 +63,15 @@ class Client {
 
         $this->swoole->send($data);
         $response = $this->swoole->recv();
-        $this->swoole->close();
         if (!$response) {
             return false;
         }
-        return $this->unpackData($response);
+        $data = $this->unpackData($response);
+        return $data;
     }
 
     private function createSwooleClient(array $swoole_conf) {
-        $this->swoole = new \swoole_client(constant($this->conf['type']),
+        $this->swoole = new Swoole\Client(constant($this->conf['type']),
             constant($this->conf['is_sync']));
         $this->swoole->set($swoole_conf);
     }

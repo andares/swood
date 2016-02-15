@@ -42,7 +42,7 @@ trait Loader {
             if (!static::$_schema) {
                 throw new \RuntimeException("schema of " . __CLASS__ . " is not defined");
             }
-            static::$_schema = static::getSchemaConf()->get('schema', static::$_schema);
+            static::$_schema = static::_getSchemaConf()->get('schema', static::$_schema);
         }
 
         return static::$_schema;
@@ -52,7 +52,7 @@ trait Loader {
      *
      * @return \Swood\Conf
      */
-    protected static function getSchemaConf() {
+    protected static function _getSchemaConf() {
         return \Swood\Dock::select('instance')['conf'];
     }
 

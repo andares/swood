@@ -131,6 +131,15 @@ class Cluster {
     }
 
     /**
+     * 获取集群中所有driver
+     */
+    public function getAllDrivers() {
+        foreach ($this->ring as $conn_name) {
+            yield $this->getDriverByName($conn_name);
+        }
+    }
+
+    /**
      *
      * @param string $conn_name
      * @return Driver\Driver

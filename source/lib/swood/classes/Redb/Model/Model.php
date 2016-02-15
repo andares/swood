@@ -36,7 +36,7 @@ abstract class Model extends \Redb\Data {
     /**
      * 获取前集群数据连接
      * @param mixed $id
-     * @return boolean
+     * @return bool
      */
     protected function _getPreClusterConnById($id = 0) {
         $cluster = static::getCluster()->getPreCluster();
@@ -62,7 +62,7 @@ abstract class Model extends \Redb\Data {
     /**
      * 读取单条记录
      * @param type $id
-     * @param boolean $force 是否强制载入
+     * @param bool $force 是否强制载入
      * @return \Redb\Model\Model
      */
     public function read($id, $force = false) {
@@ -161,7 +161,7 @@ abstract class Model extends \Redb\Data {
 
     /**
      * 创建 model 至数据库
-     * @return boolean
+     * @return bool
      */
     public function create() {
         $id   = $this->getId();
@@ -175,7 +175,7 @@ abstract class Model extends \Redb\Data {
     /**
      * 更新数据库中的数据
      * @param array $data
-     * @return boolean
+     * @return bool
      */
     public function update(array $data) {
         // 先更新数据库
@@ -190,9 +190,21 @@ abstract class Model extends \Redb\Data {
         return true;
     }
 
+    protected function _getUpdateFields($data) {
+        $update = [];
+        foreach (static::getSchema() as $field => $conf) {
+            $key = isset($conf['key']) ? $conf['key'] : $field;
+            if ($this->$field != $data[$key]) {
+                $update[$key] = $data[$key];
+            }
+        }
+
+        return $update;
+    }
+
     /**
      *
-     * @return boolean
+     * @return bool
      */
     public function delete() {
         $id   = $this->getId();

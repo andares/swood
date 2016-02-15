@@ -60,6 +60,8 @@ class Params extends \Helper\Terminal\Params {
     protected static $options_mapping = [
         'C' => 'work_dir',
         'H' => 'header',
+        's' => 'conf',
+        'D' => 'debug',
     ];
 
     public function getCmd() {
