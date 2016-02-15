@@ -5,7 +5,7 @@ use Swood\Debug as D;
 /**
  * 启动器
  *
- * @note test: swtry call Poi/GetById 'bbb[]=22&id=111' -H 'token=wwwwww'
+ * @note test: swtry call Poi/GetById 'id[]=111&id[]=222' -H 'token=wwwwww'
  * @note test: swood call aaa 'bbb[]=22' -H 'token=wwwwww' -C ~/repos/117go/gis2
  * @note test: swtry call aaa 'bbb[]=22' ccc '{"ddd":100}' -H 'token=wwwwww'
  *
@@ -52,9 +52,9 @@ class Launcher {
         }
 
         // 取工作目录
-        $workdir = new WorkDir($this->params->work_dir);
-        $workdir->init($this->params->conf, $this->params->getDebugLevel());
-        \Swood\Dock::select('swood')['workdir'] = $workdir;
+        $workspace = new WorkSpace($this->params->work_dir);
+        $workspace->init($this->params->conf, $this->params->getDebugLevel());
+        \Swood\Dock::select('swood')['workspace'] = $workspace;
 
         // 载入swood配置
         $this->conf = \Swood\Dock::select('instance')['conf']->get('swood', 'swood');
@@ -141,7 +141,7 @@ class Launcher {
     /**
      *
      * @param string $action
-     * @return boolean
+     * @return bool
      */
     private function callLauncherApp($action) {
         $listen = \Swood\Dock::select('instance')['conf']
@@ -179,6 +179,9 @@ class Launcher {
         $app_name   = $this->params->getAppName($apps_conf);
 
         // 拿到端口配置
+        var_dump($app_name);
+        var_dump($this->params->port);
+        var_dump($apps_conf[$app_name]);
         if (!isset($apps_conf[$app_name][$this->params->port])) {
             throw new \RuntimeException("port id is not valid");
         }
