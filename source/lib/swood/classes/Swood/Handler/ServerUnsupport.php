@@ -60,33 +60,33 @@ trait ServerUnsupport {
      * @param type $interval
      */
     public function timer(Swoole\Server $server, $interval) {
-        D::du("timer trigger[$server->worker_pid]: $interval", "Unsupported callback raise");
+        D::ec("timer trigger[$server->worker_pid]: $interval", "Unsupported callback raise");
 
     }
 
     public function packet(Swoole\Server $server, $data, array $client_info) {
-        D::du("udp received", "Unsupported callback raise");
+        D::ec("udp received", "Unsupported callback raise");
     }
 
     public function pipeMessage(Swoole\Server $server, $from_id, $message) {
-        D::du("send message received", "Unsupported callback raise");
+        D::ec("send message received", "Unsupported callback raise");
     }
 
     public function connect(Swoole\Server $server, $fd, $from_id) {
-        D::du("connected", "Unsupported callback raise");
+        D::ec("connected", "Unsupported callback raise");
     }
 
     public function close(Swoole\Server $server, $fd, $from_id) {
-        D::du("closed", "Unsupported callback raise");
+        D::ec("closed", "Unsupported callback raise");
     }
 
     public function managerStart(Swoole\Server $server) {
-        D::du("manager started", "Unsupported callback raise");
+        D::ec("manager started", "Unsupported callback raise");
         $this->server->setProcessType(\Swood\Server::PROCESSTYPE_MANAGER);
     }
 
     public function managerStop(Swoole\Server $server) {
-        D::du("manager stopped", "Unsupported callback raise");
+        D::ec("manager stopped", "Unsupported callback raise");
     }
 
 }

@@ -22,7 +22,7 @@
 namespace Redb;
 
 /**
- * Description of Cluster
+ * 连接集群
  *
  * @author andares
  */
@@ -149,7 +149,7 @@ class Cluster {
     }
 
     /**
-     *
+     * 根据id获取集群中连接名
      * @param mixed $id
      * @return string
      */

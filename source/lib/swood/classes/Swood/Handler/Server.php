@@ -102,7 +102,7 @@ class Server {
         // 启动前输出一下autoload到的数据
         D::log('debug', \Swood\Dock::select('swood')['autoload']->getLoadedClasses(), "Autoload classes list before server started");
 
-        D::du("Server start [$server->master_pid]");
+        D::ec("Server start [$server->master_pid]");
 
         $this->server->setProcessType(\Swood\Server::PROCESSTYPE_MASTER);
 
@@ -126,7 +126,7 @@ class Server {
      * @param Swoole\Server $server
      */
     public function shutdown(Swoole\Server $server) {
-        D::du("Server shutdown [$server->master_pid]");
+        D::ec("Server shutdown [$server->master_pid]");
 
         foreach ($this->server->getAllApps() as $app) {
             /* @var $app \Swood\App\App */
@@ -146,11 +146,11 @@ class Server {
      * @param type $worker_id
      */
     public function workerStart(Swoole\Server $server, $worker_id) {
-        D::du("Worker start[$server->worker_pid]: $worker_id");
+        D::ec("Worker start[$server->worker_pid]: $worker_id");
 
         // 清除缓存
         if (function_exists('\opcache_reset')) {
-            D::du("Reset opcache");
+            D::ec("Reset opcache");
             \opcache_reset();
         }
 
@@ -168,7 +168,7 @@ class Server {
     }
 
     public function receive(Swoole\Server $server, $fd, $from_id, $data) {
-        D::du("received[$server->worker_pid]");
+        D::ec("received[$server->worker_pid]");
 
         // 连接信息
         $this->server->current_fd = $fd;
@@ -196,7 +196,7 @@ class Server {
 
             // 执行
             $app->worker->call($request, $response);
-            D::level() && D::du("call: <$app_name> " . \json_encode($request->toArray()) .
+            D::level() && D::ec("call: <$app_name> " . \json_encode($request->toArray()) .
                 " => " . \json_encode($response->toArray()));
 
             // 发回
@@ -222,7 +222,7 @@ class Server {
      * @param type $worker_id
      */
     public function workerStop(Swoole\Server $server, $worker_id) {
-        D::du("Worker stop[$server->worker_pid]: $worker_id");
+        D::ec("Worker stop[$server->worker_pid]: $worker_id");
 
         foreach ($this->server->getAllApps() as $app) {
             /* @var $app \Swood\App\App */
@@ -239,7 +239,7 @@ class Server {
      */
     public function workerError(Swoole\Server $server, $worker_id, $worker_pid, $exit_code) {
         // NOTICE 这里不能调$server->worker_pid，在某些情况下会访问不到该字段
-        D::du("Worker error: $worker_id - $exit_code");
+        D::ec("Worker error: $worker_id - $exit_code");
 
         if (D::level()) {
             return $this->server->swoole->shutdown();
@@ -261,7 +261,7 @@ class Server {
      * @param type $data
      */
     public function task(Swoole\Server $server, $task_id, $from_id, $data) {
-        D::du("Task got[$server->worker_pid]: $task_id");
+        D::ec("Task got[$server->worker_pid]: $task_id");
 
         foreach ($this->server->getAllApps() as $app) {
             /* @var $app \Swood\App\App */
@@ -281,7 +281,7 @@ class Server {
      * @param type $data
      */
     public function finish(Swoole\Server $server, $task_id, $data) {
-        D::du("Task finish[$server->worker_pid]: $task_id");
+        D::ec("Task finish[$server->worker_pid]: $task_id");
 
         foreach ($this->server->getAllApps() as $app) {
             /* @var $app \Swood\App\App */

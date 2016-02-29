@@ -23,7 +23,8 @@ namespace Redb;
 use Swood\Debug as D;
 
 /**
- * Description of Data
+ * 数据基类。
+ * 用于Model和Entity
  *
  * @author andares
  */

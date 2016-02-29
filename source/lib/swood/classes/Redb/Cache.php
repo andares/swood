@@ -22,7 +22,7 @@
 namespace Redb;
 
 /**
- * Description of Cache
+ * Redb的缓存类
  *
  * @author andares
  */
@@ -50,6 +50,12 @@ class Cache {
             self::$entities[$entity_name][$id] : null;
     }
 
+    /**
+     * 从一个id列表中分离出未载入的id列表
+     * @param string $entity_name
+     * @param array $ids
+     * @return array
+     */
     public static function getUnloadIds($entity_name, $ids) {
         $unload_ids = [];
         foreach ($ids as $id) {
@@ -60,6 +66,13 @@ class Cache {
         return $unload_ids;
     }
 
+    /**
+     * 向缓存中存储entity
+     * @param \Redb\Entity $entity
+     * @param type $auto_gc
+     * @throws \RuntimeException
+     * @throws \LogicException
+     */
     public static function store(Entity $entity, $auto_gc = true) {
         $entity_name = $entity->getEntityName();
         $id = $entity->getId();
@@ -87,10 +100,19 @@ class Cache {
         }
     }
 
+    /**
+     * 在缓存中移除entity
+     * @param type $entity_name
+     * @param type $id
+     */
     public static function remove($entity_name, $id) {
         unset(self::$entities[$entity_name][$id]);
     }
 
+    /**
+     * 垃圾回收
+     * @param type $entity_name
+     */
     public static function gc($entity_name) {
         foreach (self::$entities[$entity_name] as $id => $entity) {
             /* @var $entity Entity */
@@ -99,10 +121,17 @@ class Cache {
         }
     }
 
+    /**
+     * 获取缓存中数据
+     * @return type
+     */
     public static function getAll() {
         return self::$entities;
     }
 
+    /**
+     * 将缓存中的所有数据存档
+     */
     public static function saveAll() {
         foreach (self::$entities as $list) {
             foreach ($list as $entity) {
@@ -113,7 +142,7 @@ class Cache {
     }
 
     /**
-     *
+     * 清除所有缓存
      */
     public static function clearAll() {
         self::$entities = [];

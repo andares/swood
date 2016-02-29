@@ -41,6 +41,7 @@ abstract class Driver {
     abstract public function connect($name);
     abstract public function close();
     abstract public function getConn();
+    abstract public function query(array $query, $fields, $sort, $rows, $start = 0);
 
     protected function getConf($name) {
         $conf_path = "connections" . DIRECTORY_SEPARATOR . static::$driver_conf;

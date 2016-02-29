@@ -73,6 +73,10 @@ class MongoDB extends Driver {
         self::$clients[$this->host_uri]->close();
     }
 
+    public function query(array $query, $fields, $sort, $rows, $start = 0) {
+        
+    }
+
     /**
      *
      * @return \MongoDB

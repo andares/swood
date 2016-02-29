@@ -23,13 +23,17 @@ namespace Redb;
 use Swood\Debug as D;
 
 /**
- * Description of Entity
+ * 数据实体。
+ * 这是面向逻辑层面的固化数据结构。
  *
  * @author andares
  *
  * @property int $createdat 创建时间，与id一样是必须有的字段
  */
 abstract class Entity extends Data {
+    /**
+     * 保存模式
+     */
     const SAVEMETHOD_NONE   = 0;
     const SAVEMETHOD_UPDATE = 1;
     const SAVEMETHOD_CREATE = 2;
@@ -327,6 +331,26 @@ abstract class Entity extends Data {
     }
 
     /**
+     * 获取查询对象
+     * @return \Redb\Query
+     */
+    public static function getQuery() {
+        $query = new \Redb\Query(get_called_class());
+        return $query;
+    }
+
+    /**
+     * 以entity为入口查询
+     * @param \Redb\Query $query
+     * @param \Redb\Model\Model $model
+     * @return Result
+     */
+    public static function query(Query $query, Model\Model $model) {
+        $result = static::_query($query, $model);
+        return $result;
+    }
+
+    /**
      * 对set重载做处理
      * @param string $name
      * @param mixed $value
@@ -349,6 +373,8 @@ abstract class Entity extends Data {
      * 以下为需要在pattern中扩展的方法
      */
     abstract public static function genId();
+    abstract public static function getQueryModel();
+    abstract protected static function _query(Query $query, Model\Model $model);
     abstract protected static function _wrapId($id);
     abstract protected static function _wrapIds(array $id);
     abstract protected static function _load($id);
@@ -365,16 +391,5 @@ abstract class Entity extends Data {
     protected function _hook_create() {}
     protected function _hook_before_save($save_method) {}
     protected function _hook_after_save($save_method) {}
-
-    /**
-     *
-     * @return \Redb\Query
-     */
-    public static function query($statment = null) {
-        $query = new Query($this);
-        $query->setStatment();
-        return $query;
-    }
-
 
 }

@@ -27,7 +27,7 @@ use Swood\Debug as D;
  *
  * @author andares
  */
-class MongoDB extends Model {
+abstract class MongoDB extends Model {
 
     protected static function _read($id, \Redb\Driver\Driver $driver) {
         $collection = static::_getCollection($driver);
@@ -52,11 +52,6 @@ class MongoDB extends Model {
     }
 
     protected static function _update($id, array $data, \Redb\Driver\Driver $driver) {
-        $data   = $this->_getUpdateFields($data);
-        if (!$data) {
-            return true;
-        }
-
         $collection = static::_getCollection($driver);
 
         $cond   = [static::$_id_field => $id];
@@ -69,6 +64,10 @@ class MongoDB extends Model {
 
         $cond   = [static::$_id_field => $id];
         return $collection->remove($cond);
+    }
+
+    protected static function _query(\Redb\Query $query, \Redb\Driver\Driver $conn) {
+
     }
 
     /**

@@ -20,6 +20,7 @@
  */
 
 namespace Redb\Driver;
+use Swood\Debug as D;
 
 /**
  * Description of Solr
@@ -29,34 +30,55 @@ namespace Redb\Driver;
 class Solr extends Driver {
     public static $driver_conf = 'solr';
 
-	private $host;
-	private $port;
-	private $core;
 	private $url;
 
 	private $post_cache = [];
 
-    public function connect($name) {
-        $conf = $this->getConf();
+    private static $query_keys = [
+        'q', 'fq', 'sort',
+    ];
 
-        $this->conn = new \MongoClient($conf[$name]['host'], $conf[$name]['options']);
-        $this->conn->selectDB($conf[$name]['db']);
+    public function connect($name) {
+        $conf = $this->getConf($name);
+
+        $this->url = "http://{$conf['host']}:{$conf['port']}/{$conf['path']}";
     }
 
     public function close() {
-        $this->conn->close();
+        return true;
     }
 
-	public function __construct($core, $conf_name = 'default') {
-        $config = Core_Config::get("solr.$conf_name");
-        $this->core = $config['indexes'][$core];
-        $this->host = $config['host'];
-        $this->port = $config['port'];
+    public function getConn() {
+        return $this;
+    }
 
-		$this->url = "http://$this->host:$this->port/solr/$this->core";
-	}
+    /**
+     *
+     * @param array $query
+     * @param type $fields
+     * @param type $sort
+     * @param type $rows
+     * @param type $start
+     * @return \Redb\Driver\Solr\Call
+     */
+    public function query(array $query, $fields, $sort, $rows, $start = 0) {
+        // 拼接
+        $param = 'select?';
+        isset($query['q'])  && $param   .= "q={$query['q']}&";
+        isset($query['fq']) && $param   .= "{$query['fq']}&";
+        isset($query['qf']) && $param   .= "qf={$query['qf']}&";
 
-	public function post(Core_ArrayObject $doc) {
+        // 查询字段
+        $fields && $param .= "fl=$fields&";
+
+        // 排序
+        $sort && $param .= "sort=$sort&";
+
+        $param .= "start=$start&rows=$rows&stopwords=true&wt=json&indent=true";
+		return new Solr\Call($this->url, $param);
+    }
+
+	public function post(\Swood\Schema\Meta $doc) {
 		$this->post_cache[] = $doc->toArray();
 	}
 
@@ -65,61 +87,23 @@ class Solr extends Driver {
 	}
 
 	public function delete($query) {
-        $url	= "$this->url/update?wt=json&commit=true";
-        $post	= json_encode(['delete' => ['query' => $query]]);
-		return $this->callApi($url, $post);
+        $param	= "$this->url/update?wt=json&commit=true";
+		return new Solr\Call($this->url, $param, ['delete' => ['query' => $query]]);
 	}
 
 	public function rebuild() {
-        $url = "$this->url/update?wt=json&commit=true";
-
-		return $this->callApi($url, ['optimize' => 1]);
+        $param = "$this->url/update?wt=json&commit=true";
+		return new Solr\Call($this->url, $param, ['optimize' => 1]);
 	}
 
-    public function update() {
+    public function update($core) {
 		if (!$this->post_cache) {
 			return true;
 		}
-
-        $url = "$this->url/update?wt=json&commit=true";
+        $param = "update?wt=json&commit=true";
 
         $post = json_encode($this->post_cache);
 		$this->post_cache = [];
-
-		return $this->callApi($url, $post);
-
+		return new Solr\Call($this->url, $param, $post);
     }
-
-	private function callApi($url, $post) {
-		$ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Content-Type: application/json; charset=utf-8",
-            'Content-Length: ' . strlen($post),
-            'Accept: application/json',
-        ]);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $data = json_decode(curl_exec($ch));
-		curl_close($ch);
-
-		Core_Log::log("call solr: $url | " . json_encode($post));
-
-		if (!isset($data) || $data->responseHeader->status != 0) {
-            if (isset($data->error) && !empty($data->error->msg)) {
-                try {
-                    throw new Exception($data->error->msg);
-                } catch (Exception $e) {
-					Core_Log::log($url);
-					Core_Log::log($post);
-                    Core_Log::log($e->getMessage());
-                }
-            } else {
-				Core_Log::log('solr query err');
-            }
-        }
-
-		return $data;
-	}
-
 }

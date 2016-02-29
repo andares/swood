@@ -64,6 +64,10 @@ class Mysql extends Driver {
         unset($this->conn);
     }
 
+    public function query(array $query, $fields, $sort, $rows, $start = 0) {
+
+    }
+
     /**
      *
      * @return \PDO

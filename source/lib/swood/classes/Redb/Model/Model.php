@@ -1,5 +1,6 @@
 <?php
 namespace Redb\Model;
+use Swood\Debug as D;
 
 /**
  * 数据Model。
@@ -178,6 +179,12 @@ abstract class Model extends \Redb\Data {
      * @return bool
      */
     public function update(array $data) {
+        // 获得差异数据
+        $data   = $this->_getUpdateFields($data);
+        if (!$data) {
+            return true;
+        }
+
         // 先更新数据库
         $id     = $this->getId();
         $conn   = static::getConnById($id);
@@ -215,8 +222,19 @@ abstract class Model extends \Redb\Data {
         return true;
     }
 
-    public function query(self $model) {
-
+    /**
+     *
+     * @param \Redb\Query $query
+     * @return boolean|\Redb\Result
+     */
+    public function query(\Redb\Query $query) {
+        $id     = $this->getId();
+        $conn   = static::getConnById($id);
+        $result = static::_query($query, $conn);
+        if (!$result) {
+            return false;
+        }
+        return $result;
     }
 
     /**
@@ -226,5 +244,6 @@ abstract class Model extends \Redb\Data {
     abstract protected static function _create($id, array $data, \Redb\Driver\Driver $conn);
     abstract protected static function _update($id, array $data, \Redb\Driver\Driver $conn);
     abstract protected static function _delete($id, \Redb\Driver\Driver $conn);
+    abstract protected static function _query(\Redb\Query $query, \Redb\Driver\Driver $conn);
 
 }

@@ -20,12 +20,13 @@ use Swood\Debug as D;
 abstract class Meta implements \ArrayAccess, \IteratorAggregate {
     use Loader;
 
-    const TYPE_ARRAY       = 1;
-    const TYPE_CALLBACK    = 2;
-    const TYPE_BOOL        = 3;
-    const TYPE_FLOAT       = 4;
-    const TYPE_INT         = 5;
-    const TYPE_STRING      = 6;
+    const TYPE_ARRAY        = 1;
+    const TYPE_CALLBACK     = 2;
+    const TYPE_BOOL         = 3;
+    const TYPE_FLOAT        = 4;
+    const TYPE_INT          = 5;
+    const TYPE_STRING       = 6;
+    const TYPE_KV           = 7;
 
     /**
      * 数据
@@ -85,6 +86,7 @@ abstract class Meta implements \ArrayAccess, \IteratorAggregate {
                         break;
 
                     case self::TYPE_ARRAY:
+                    case self::TYPE_KV:
                         if (!is_array($value)) {
                             throw new \UnexpectedValueException("field [$name] type error");
                         }

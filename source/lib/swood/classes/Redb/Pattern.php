@@ -22,14 +22,22 @@
 namespace Redb;
 
 /**
- * Description of Pattern
+ * 存储管理模式（策略）基类
  *
  *
  * @author andares
  */
 trait Pattern {
+    /**
+     * 模型空间
+     * @var string
+     */
     protected static $_model_space = '';
 
+    /**
+     * 获取模型空间
+     * @return string
+     */
     protected static function _getModelSpace() {
         if (!static::$_model_space) {
             $space = str_replace('\\Entity\\', '\\Model\\', __CLASS__);
@@ -38,6 +46,11 @@ trait Pattern {
         return static::$_model_space;
     }
 
+    /**
+     * 封装id列表
+     * @param array $ids
+     * @return array
+     */
     protected static function _wrapIds(array $ids) {
         $wrapped_ids = [];
         foreach ($ids as $key => $id) {
@@ -47,10 +60,14 @@ trait Pattern {
     }
 
     abstract public static function genId();
+    abstract public static function getQueryModel();
+    abstract protected static function _query(Query $query, Model\Model $model);
     abstract protected static function _wrapId($id);
     abstract protected static function _load($id);
+    abstract protected function _reload();
     abstract protected static function _loadList(array $ids);
-    abstract protected function _create($update);
-    abstract protected function _update($update);
+    abstract protected function _create();
+    abstract protected function _update();
     abstract protected function _delete();
+
 }
