@@ -34,33 +34,72 @@ abstract class Solr extends Model {
      */
     protected static function _read($id, \Redb\Driver\Driver $conn) {
         /* @var $conn \Redb\Driver\Solr */
+        $response = $conn->query([
+            'q'     => '*:*',
+            'fq'    => static::$_id_field . ":$id",
+        ], null, null, 1)->post(static::$_name);
 
+        if (!$response || !isset($response['response']['docs'][0])) {
+            return false;
+        }
+
+        return $response['response']['docs'][0];
+    }
+
+    protected static function _readByIds(array $ids, \Redb\Driver\Driver $driver) {
+        /* @var $conn \Redb\Driver\Solr */
+        $response = $conn->query([
+            'q'     => '*:*',
+            'fq'    => static::$_id_field . ":(" . implode(' ', $ids) . ")",
+        ], null, null, count($ids))->post(static::$_name);
+
+        if ($response && isset($response['response']['docs'][0])) {
+            foreach ($response['response']['docs'] as $row) {
+                yield $row;
+            }
+        }
     }
 
     protected static function _create($id, array $data, \Redb\Driver\Driver $conn) {
         /* @var $conn \Redb\Driver\Solr */
+        $data[static::$_id_field] = $id;
+        $conn->post($data);
+        $response = $conn->update()->post(static::$_name);
 
+        if (!$response || !isset($response['responseHeader']['status']) ||
+            $response['responseHeader']['status']) {
+            return false;
+        }
+
+        return true;
     }
 
     protected static function _update($id, array $data, \Redb\Driver\Driver $conn) {
         /* @var $conn \Redb\Driver\Solr */
-
+        return static::_create($id, $data, $conn);
     }
 
     protected static function _delete($id, \Redb\Driver\Driver $conn) {
         /* @var $conn \Redb\Driver\Solr */
+        $response = $conn->delete(static::$_id_field . ":$id")->call(static::$_name);
 
+        if (!$response || !isset($response['responseHeader']['status']) ||
+            $response['responseHeader']['status']) {
+            return false;
+        }
+
+        return true;
     }
 
     protected static function _query(\Redb\Query $query, \Redb\Driver\Driver $conn) {
         /* @var $conn \Redb\Driver\Solr */
         // 字段
         $fields = $query->selectFields();
-        $fields && $fields = urlencode(implode(' ', $fields));
+        $fields && $fields = implode(' ', $fields);
 
         // 排序
         $sort = $query->getSort();
-        $sort && $sort = urlencode(static::_buildQuerySort($sort));
+        $sort && $sort = static::_buildQuerySort($sort);
 
         // 调用
         $response = $conn->query(static::_buildQuery($query), $fields, $sort,
@@ -92,13 +131,15 @@ abstract class Solr extends Model {
             switch ($group) {
                 case 'q':       // keywords q=*:* q=上海
                     foreach ($conds as $cond) {
-                        $q[] = static::_buildQuery_q($cond);
+                        $q[] = is_array($cond) ?
+                            static::_buildQuery_q($cond) : $cond;
                     }
                     break;
 
                 case 'fq':      // 筛选条件, 可被缓存 fq=type:(3 4)&fq=level:3&fq=level:[2 TO *]
                     foreach ($conds as $cond) {
-                        $fq[] = 'fq=' . urlencode(static::_buildQuery_fq($cond));
+                        $fq[] = is_array($cond) ?
+                            static::_buildQuery_fq($cond) : $cond;
                     }
                     break;
                 case 'qf':      // 查询字段 qf=names_cjk name
@@ -116,12 +157,12 @@ abstract class Solr extends Model {
 
         $result = [];
         if ($q) {
-            $result['q'] = urlencode(implode(' ', $q));
+            $result['q'] = implode(' ', $q);
         } else {
-            $result['q'] = urlencode('*:*');
+            $result['q'] = '*:*';
         }
-        $fq && $result['fq']    = implode('&', $fq);
-        $qf && $result['qf']    = urlencode($qf);
+        $fq && $result['fq']    = $fq;
+        $qf && $result['qf']    = $qf;
         return $result;
     }
 

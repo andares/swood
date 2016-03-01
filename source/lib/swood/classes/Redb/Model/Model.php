@@ -178,11 +178,15 @@ abstract class Model extends \Redb\Data {
      * @param array $data
      * @return bool
      */
-    public function update(array $data) {
-        // 获得差异数据
-        $data   = $this->_getUpdateFields($data);
-        if (!$data) {
-            return true;
+    public function update(array $data = null) {
+        if ($data) {
+            // 获得差异数据
+            $data   = $this->_getUpdateFields($data);
+            if (!$data) {
+                return false;
+            }
+        } else {
+            $data = $this->toArray();
         }
 
         // 先更新数据库
@@ -241,6 +245,7 @@ abstract class Model extends \Redb\Data {
      * 不同DB类型的Model扩展方法
      */
     abstract protected static function _read($id, \Redb\Driver\Driver $conn);
+    abstract protected static function _readByIds(array $ids, \Redb\Driver\Driver $conn);
     abstract protected static function _create($id, array $data, \Redb\Driver\Driver $conn);
     abstract protected static function _update($id, array $data, \Redb\Driver\Driver $conn);
     abstract protected static function _delete($id, \Redb\Driver\Driver $conn);

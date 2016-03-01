@@ -46,23 +46,10 @@ trait Pattern {
         return static::$_model_space;
     }
 
-    /**
-     * 封装id列表
-     * @param array $ids
-     * @return array
-     */
-    protected static function _wrapIds(array $ids) {
-        $wrapped_ids = [];
-        foreach ($ids as $key => $id) {
-            $wrapped_ids[$key] = static::_wrapId($id);
-        }
-        return $wrapped_ids;
-    }
-
-    abstract public static function genId();
+    abstract public function genId();
+    abstract protected static function _wrapId($id);
     abstract public static function getQueryModel();
     abstract protected static function _query(Query $query, Model\Model $model);
-    abstract protected static function _wrapId($id);
     abstract protected static function _load($id);
     abstract protected function _reload();
     abstract protected static function _loadList(array $ids);

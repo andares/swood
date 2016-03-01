@@ -118,19 +118,18 @@ abstract class Entity extends Data {
      * @return Entity
      */
     public static function create(array $data = [], $id = null) {
-        // 生成id
-        if ($id) {
-            $id = static::_wrapId($id);
-            static::_createId($id);
-        } else {
-            $id = static::genId();
-        }
-
         // 创建类
         $class  = get_called_class();
         $entity = new $class($data);
         /* @var $entity Entity */
-        $entity->setId($id);
+
+        // 生成id
+        if ($id) {
+            $id = static::_wrapId($id);
+            $entity->setId($id);
+        } else {
+            $id = $entity->genId();
+        }
 
         // hook
         $entity->_hook_create();
@@ -360,23 +359,25 @@ abstract class Entity extends Data {
     }
 
     /**
-     * 严格来讲这是一个基于创建时直接指定id的勾子。
-     * 主要用于在一些特殊的场合（比如默认自增id）用于检测自建id的合法性，如不合法建议直接抛出违例。
-     * @param mixed $id
-     * @return bool
+     * 封装id列表
+     * @param array $ids
+     * @return array
      */
-    protected static function _createId($id) {
-        return true;
+    protected static function _wrapIds(array $ids) {
+        $wrapped_ids = [];
+        foreach ($ids as $key => $id) {
+            $wrapped_ids[$key] = static::_wrapId($id);
+        }
+        return $wrapped_ids;
     }
 
     /**
      * 以下为需要在pattern中扩展的方法
      */
-    abstract public static function genId();
+    abstract public function genId();
+    abstract protected static function _wrapId($id);
     abstract public static function getQueryModel();
     abstract protected static function _query(Query $query, Model\Model $model);
-    abstract protected static function _wrapId($id);
-    abstract protected static function _wrapIds(array $id);
     abstract protected static function _load($id);
     abstract protected function _reload();
     abstract protected static function _loadList(array $ids);

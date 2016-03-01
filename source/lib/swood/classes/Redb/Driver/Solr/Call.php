@@ -56,7 +56,7 @@ class Call {
             ]);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
 
-            D::log('debug', "call solr: $url | " . json_encode($post));
+            D::log('debug', "call solr: " . urldecode($url) . " | " . json_encode($post));
         } else {
             curl_setopt($ch, CURLOPT_POST, 0);
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -64,7 +64,7 @@ class Call {
                 'Accept: application/json',
             ]);
 
-            D::log('debug', "call solr: $url");
+            D::log('debug', "call solr: " . urldecode($url));
         }
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $data = json_decode(curl_exec($ch), true);
@@ -73,8 +73,8 @@ class Call {
 		if (!$data || $data['responseHeader']['status'] != 0) {
             if (isset($data['error']) && !empty($data['error']['msg'])) {
                 try {
-                    throw new Exception($data['error']['msg']);
-                } catch (Exception $e) {
+                    throw new \Exception($data['error']['msg']);
+                } catch (\Exception $e) {
 					D::log('debug', $url);
 					D::log('debug', $this->post);
                     D::log('debug', $e->getMessage());

@@ -64,22 +64,30 @@ class Solr extends Driver {
     public function query(array $query, $fields, $sort, $rows, $start = 0) {
         // 拼接
         $param = 'select?';
-        isset($query['q'])  && $param   .= "q={$query['q']}&";
-        isset($query['fq']) && $param   .= "{$query['fq']}&";
-        isset($query['qf']) && $param   .= "qf={$query['qf']}&";
+        isset($query['q'])  && $param   .= 'q=' . urlencode($query['q']) . '&';
+        isset($query['qf']) && $param   .= 'qf=' . urlencode($query['qf']) . '&';
+        if (isset($query['fq'])) {
+            if (is_array($query['fq'])) {
+                foreach ($query['fq'] as $fq) {
+                    $param .= 'fq=' . urlencode($fq) . '&';
+                }
+            } else {
+                $param   .= 'fq=' . urlencode($query['fq']) . '&';
+            }
+        }
 
         // 查询字段
-        $fields && $param .= "fl=$fields&";
+        $fields && $param .= 'fl=' . urlencode($fields) . '&';
 
         // 排序
-        $sort && $param .= "sort=$sort&";
+        $sort && $param .= 'sort=' . urlencode($sort) . '&';
 
         $param .= "start=$start&rows=$rows&stopwords=true&wt=json&indent=true";
 		return new Solr\Call($this->url, $param);
     }
 
-	public function post(\Swood\Schema\Meta $doc) {
-		$this->post_cache[] = $doc->toArray();
+	public function post(array $doc) {
+		$this->post_cache[] = $doc;
 	}
 
 	public function postCancel() {
@@ -87,16 +95,11 @@ class Solr extends Driver {
 	}
 
 	public function delete($query) {
-        $param	= "$this->url/update?wt=json&commit=true";
+        $param	= "$this->url/update?wt=json";
 		return new Solr\Call($this->url, $param, ['delete' => ['query' => $query]]);
 	}
 
-	public function rebuild() {
-        $param = "$this->url/update?wt=json&commit=true";
-		return new Solr\Call($this->url, $param, ['optimize' => 1]);
-	}
-
-    public function update($core) {
+    public function update() {
 		if (!$this->post_cache) {
 			return true;
 		}
@@ -106,4 +109,9 @@ class Solr extends Driver {
 		$this->post_cache = [];
 		return new Solr\Call($this->url, $param, $post);
     }
+
+	public function rebuild() {
+        $param = "$this->url/update?wt=json&commit=true";
+		return new Solr\Call($this->url, $param, ['optimize' => 1]);
+	}
 }

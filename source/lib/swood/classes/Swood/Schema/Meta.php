@@ -4,9 +4,9 @@ use Swood\Debug as D;
 
 /**
  * 实现一个可维护的kv行结构。
- * 支持填充数据（包括初始化）；
+ * 支持填充数据（包括初始化）， 支持static::_from_raw() 方法扩展
  * 字段检查与过滤器实现，通过 _confirm_ 方法；
- * 提供toArray()， 支持_to_array 方法扩展
+ * 提供toArray()， 支持static::_to_array($arr) 方法扩展
  * 支持聚合迭代器；
  * 支持ArrayAccess；
  * 重载数据访问，支持数据操作事件，通过 _set_, _get_ 实现
@@ -108,6 +108,10 @@ abstract class Meta implements \ArrayAccess, \IteratorAggregate {
             throw new \InvalidArgumentException("fill data error");
         }
 
+        if (method_exists($this, '_from_raw')) {
+            $data = static::_from_raw($data);
+        }
+
         foreach (static::getSchema() as $name => $info) {
             isset($data[$name]) && $this->$name = $this->_transFromRaw($data[$name], $info);
         }
@@ -131,6 +135,10 @@ abstract class Meta implements \ArrayAccess, \IteratorAggregate {
         foreach (static::getSchema() as $name => $info) {
             $key = ($by_key && isset($info['key'])) ? $info['key'] : $name;
             $arr[$key] = $this->_transFromField($this->$name, $info);
+        }
+
+        if (method_exists($this, '_to_array')) {
+            $arr = static::_to_array($arr);
         }
         return $arr;
     }
