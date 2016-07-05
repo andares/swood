@@ -1,3 +1,9 @@
 /nbproject/private
 /backup/
 /tools/
+/vendor/
+/composer.lock
+/bin/
+/docs/
+/example/
+/make/

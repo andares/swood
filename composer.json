@@ -1,0 +1,28 @@
+{
+    "name": "andares/swood",
+    "description": "The new way for php",
+    "homepage": "http://www.swood.cc",
+    "type": "PHP",
+    "license": "LGPL2.1",
+    "authors": [
+        {
+            "name": "Andares Merigold",
+            "email": "andares@outlook.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0.0",
+        "nette/neon": "^2.4"
+    },
+    "require-dev": {
+        "nette/di": "^2.4",
+        "tracy/tracy": "^2.4",
+        "nette/tester": "~2.0"
+    },
+    "autoload": {
+        "classmap": [
+            "src/classes"
+        ]
+    },
+    "minimum-stability": "dev"
+}
