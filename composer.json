@@ -1,5 +1,5 @@
 {
-    "name": "andares/swood",
+    "name": "swood/swood",
     "description": "The new way for php",
     "homepage": "http://www.swood.cc",
     "type": "PHP",
@@ -24,5 +24,5 @@
             "src/classes"
         ]
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "stable"
 }
