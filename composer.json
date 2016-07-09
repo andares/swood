@@ -2,7 +2,7 @@
     "name": "swood/swood",
     "description": "The new way for php",
     "homepage": "http://www.swood.cc",
-    "type": "PHP",
+    "keywords": ["framework"],
     "license": "LGPL2.1",
     "authors": [
         {
